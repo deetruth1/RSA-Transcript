@@ -3,8 +3,13 @@ const bcrypt = require('bcrypt')
 const user = require('../models/users')
 const router = express.Router()
 const path = require('path')
+const users = require('../models/users')
 
 router.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, '../pages/login.html'))
+})
+
+router.get('/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, '../pages/login.html'))
 })
 
@@ -54,4 +59,33 @@ router.post('/adduser', async (req, res) =>{
     }
 })
 
+router.post('/login', async (req, res) =>{
+    try {
+        const email = req.body.email ? req.body.email.trim().toLowerCase():'';
+        const password = req.body.password ? req.body.password.trim():'';
+
+        if (!email || !password) {
+            return res.status(400).send('Please enter both email and password')
+        }
+
+        const user = await users.findOne({email: email})
+        if (!user) {
+            res.status(401).send('Invalid Email or Password')
+        }
+
+        const isPasswordCorrect = await bcrypt.compare(password, user.password)
+        if(!isPasswordCorrect){
+            return res.status(401).send('Invalid Email or Password')
+        }
+
+        console.log(`User Login Validation successful! ID: ${user.id} `);
+
+        return res.redirect('/admindash')
+        
+    } catch (error) {
+        console.error('Critical Login Error:', error);
+        return res.status(500).send('An unexpected server error occurred during login.')
+    }
+
+})
 module.exports = router

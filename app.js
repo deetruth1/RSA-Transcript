@@ -21,7 +21,7 @@ app.use('/users', authRoutes)
 
 
 // connect database
-const url = 'mongodb://localhost:27017'
+const url = 'mongodb://localhost:27017/theTruthDb'
 mongoose.connect(url)
 .then(() => {
     console.log('Database connected successfully');
