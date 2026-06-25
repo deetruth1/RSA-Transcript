@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+ <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> 
+
+   <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="scroll-smooth flex flex-col min-h-screen bg-gradient-to-bl from-blue-350 via-blue-400 to-blue-500 text-slate-900">
+
+<div id="bg" class="fixed inset-0 z-0 overflow-hidden">
+
+  <!-- Gradient Layer (animated shift) -->
+  <div class="absolute inset-0 bg-white/20 backdrop-blur-lg animate-[bgshift_12s_ease-in-out_infinite]"></div>
+
+  <!-- Soft glow blobs -->
+  <div class="absolute -top-40 -left-40 w-[500px] h-[500px] bg-blue-400/30 blur-3xl rounded-full animate-pulse"></div>
+  <div class="absolute bottom-0 -right-40 w-[600px] h-[600px] bg-indigo-400/20 blur-3xl rounded-full animate-pulse"></div>
+
+  <!-- Floating particles -->
+  <div class="particles absolute inset-0"></div>
+</div>
+
+<nav class="md:hidden fixed top-0 w-full z-40">
+  <div class="mx-auto flex justify-between items-center px-6 py-2 text-2xl border-b border-slate-800 bg-slate-900/90 backdrop-blur-md text-white">
+    <h1 class="heading">LOGO</h1>
+
+    <button id="menuBtn" class="text-2xl">☰</button>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="hidden fixed right-0 w-24 lg:w-40 shadow-md bg-white/30 backdrop-blur-md shadow-blue-900 rounded-b-lg text-center lg:text-4xl py-4 space-y-4 text-xl">
+  <button onclick="openBio('${key}','${id}')" class="px-2 hover:text-blue-600">Bio-data</button>
+    <button onclick="openResult('${key}','${id}')" class="px-2 hover:text-blue-600">Results</button>
+   <button onclick="openRequest('${key}','${id}')" class="px-2 hover:text-blue-600">Requests</button>
+    <button onclick="logout()" class="hover:text-blue-600 text-red-600">Sign Out</button>   
+  </div>
+</nav>
+
+<div class="flex overflow-hidden lg:text-xl">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="hidden md:flex md:w-64 flex-col fixed top-0 left-0 h-full bg-slate-950 p-5">
+
+    <h2 class="text-2xl lg:text-3xl text-white font-bold my-10 text-center">
+      🎓 DASHBOARD
+    </h2>
+
+  <nav class="space-y-4 text-white text-2xl">
+    <img src="svg/img3.png" class="w-48 h-48 block absolute bottom-90 transition-all duration-300 hover:scale-100 animate-pulse">
+    <button onclick="logout()" class="block absolute bottom-20 bg-white justify-self-center text-sm rounded-lg px-4 py-2 text-red-900 hover:text-white">Sign Out</button>  
+    </nav>
+
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main class="relative flex-1 mt-16 md:mt-10 md:ml-64 md:overflow-y-auto p-2 lg:p-12">
+  
+  <section id="bio" class="tab-content relative p-4 lg:text-xl">
+   <h1 class="text-center mb-4 text-2xl font-bold">DASHBOARD</h1>
+    <!-- Student Info -->
+    <div class="w-full shadow-blue-300 bg-white backdrop-blur-md rounded-2xl shadow-sm p-4 space-y-4">
+   <h3 class="text-lg lg:text-3xl font-bold">Bio-data</h3>
+    <div class="grid grid-cols-3 space-x-2">
+    <div class="flex flex-col">  <label class="block font-medium px-1.5 mb-1">Surname</label>
+      <input id="surname" type="text" placeholder="Surname"
+        class="w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5" required></div>
+    
+     <div class="flex flex-col">  <label class="block font-medium px-1.5 mb-1">First Name</label>
+      <input id="firstName" type="text" placeholder="First Name"
+        class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5">
+        </div>
+        
+      <div class="flex flex-col">  <label class="block font-medium px-1.5 mb-1">Other Name</label>
+      <input id="otherName" type="text" placeholder=""
+        class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5">
+        </div>
+         </div>
+   
+   <div class="grid grid-cols-2 gap-4">
+   <div class="flex flex-col">  <label class="block font-medium px-1.5 mb-1">Student ID</label>
+      <span id="displayStudentId" class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5"></span>
+        </div>
+      <div class="flex flex-col">  <label class="block font-medium px-1.5 mb-1">Email</label>
+      <input id="email" type="email" placeholder="Email"
+        class="w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5" required></div>          
+    <div class="flex flex-col">  <label class="block font-medium px-1.5 mb-1">Year</label>
+    <span id="displayYear" class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5"></span></div>
+  
+   <div class="flex flex-col">  <label class="block font-medium px-1.5 mb-1">Class</label>
+   <span id="displaySchool" class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5"></span></div>
+  </div>
+  </div>
+   <div class="grid grid-cols-2 gap-4 my-6 text-white lg:text-5xl">
+     
+   <button onclick="openResult('${key}','${id}')" class="p-1.5 rounded-2xl shadow-white bg-blue-600 shadow-md text-center">View Results</button>
+   <button onclick="openRequest('${key}','${id}')" class="p-1.5 lg:p-2 rounded-2xl shadow-white bg-blue-600 shadow-md text-center">Transcript Requests</button>
+  </div>
+  </section>
+ 
+    <!-- Result Table -->
+<section id="result" class="relative tab-content hidden lg:px-36">
+  <h2 class="font-bold mb-2 text-2xl text-center">RESULTS</h2>
+   <div class="place-item-left p-2">
+     <button type="button" onclick="openBio('${key}')" class="font-medium">Back</button>
+  </div>
+  <div class="w-full lg:text-xl">
+    <div id="studentRecord"></div>
+  </div>
+</section>
+
+
+<!-- REQUEST STATUS -->
+<section id="requests" class="relative tab-content hidden p-2 lg:px-24">
+  <h2 class="font-bold mb-2 text-2xl text-center">TRANSCRIPT REQUESTS</h2>
+    <div class="flex justify-between p-4">
+     <button type="button" onclick="openBio('${key}')" class="font-medium">Back</button>
+  <button onclick="submitStudentRequest()" class="text-green-600 hover:text-red-700">+ New Request</button></div>
+  
+<div class="overflow-x-auto rounded-md shadow-sm shadow-blue-600 w-[330px] md:w-full">
+
+  <table class="bg-white w-full">
+    
+    <thead class="bg-blue-900 text-white">
+      <tr>
+        <th class="p-2 text-center">ID</th>
+        <th class="p-2 text-center">Reference</th>
+        <th class="p-2 text-center">Status</th>
+        <th class="p-2 text-center">Payment</th>
+        <th class="p-2 text-center">Date</th>
+      </tr>
+    </thead>
+
+    <tbody id="requestTableBody"></tbody>
+
+  </table>
+
+</d>
+</section>
+
+</main>
+</div>
+
+  <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+  
+<footer class="relative bg-slate-950 p-4 mt-auto md:ml-64 lg:px-8 text-slate-300 text-xs lg:text-md">
+
+     <div class="flex flex-col md:flex-row justify-between items-center gap-2">  <div class="flex justify-center gap-1 md:text-left">&copy;<span id="year"></span><p>School Name. All rights reserved.</p></div>
+
+        <div class="flex flex-wrap justify-center gap-2">
+          <a href="privacy-policy.html" class="hover:text-blue-400 transition">
+            Privacy Policy
+          </a>
+
+          <a href="terms.html" class="hover:text-blue-400 transition">
+            Terms & Conditions
+          </a>
+
+          <a href="cookies.html" class="hover:text-blue-400 transition">
+            Cookie Policy
+          </a>
+
+          <a href="accessibility.html" class="hover:text-blue-400 transition">
+            Accessibility
+          </a>
+
+          <a href="faq.html" class="hover:text-blue-400 transition">
+            FAQ
+          </a>
+        </div>
+
+      </div>
+</footer>
+
+
+
+  <script src="student.js"></script> 
+   <script src="script.js"></script> 
+  
+</body>
+</html>
+

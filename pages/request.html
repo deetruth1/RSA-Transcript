@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transcript Requests</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+ <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> 
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="scroll-smooth flex flex-col min-h-screen bg-gradient-to-bl from-blue-350 via-blue-400 to-blue-500 text-slate-900">
+
+<div id="bg" class="fixed inset-0 z-0 overflow-hidden">
+
+  <!-- Gradient Layer (animated shift) -->
+  <div class="absolute inset-0 bg-white/20 backdrop-blur-lg animate-[bgshift_12s_ease-in-out_infinite]"></div>
+
+  <!-- Soft glow blobs -->
+  <div class="absolute -top-40 -left-40 w-[500px] h-[500px] bg-blue-400/30 blur-3xl rounded-full animate-pulse"></div>
+  <div class="absolute bottom-0 -right-40 w-[600px] h-[600px] bg-indigo-400/20 blur-3xl rounded-full animate-pulse"></div>
+
+  <!-- Floating particles -->
+  <div class="particles absolute inset-0"></div>
+</div>
+
+<nav class="fixed top-0 w-full z-40">
+  <div class="mx-auto flex justify-between items-center px-6 py-2 text-2xl border-b border-slate-800 bg-slate-900/90 backdrop-blur-md text-white">
+    <h1 class="heading">LOGO</h1>
+     <div class="flex items-center gap-4">
+    <button id="menuBtn" class="px-2">☰</button>
+  </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="hidden fixed right-0 w-24 lg:w-40 shadow-md bg-white/30 backdrop-blur-md shadow-blue-900 rounded-b-lg text-center lg:text-4xl py-4 space-y-4 text-xl">
+   <a href="admindash.html" class="block text-md hover:text-white">Home</a>
+    <a href="profile.html" class="admin-only block text-md hover:text-white">Add</a>
+    <a href="edit.html" class="admin-only block text-md hover:text-white">Edit</a>
+    <a href="generate.html" class="block text-md hover:text-white">Generate</a>
+    <a href="request.html" class="block text-md hover:text-white">Requests</a>
+    <a href="sent.html" class="block text-md hover:text-white">Sent</a>
+    <button onclick="logout()" class="text-md text-red-700 hover:text-white">Sign Out</button>   </div>
+</nav>
+<section class="relative px-4 lg:px-28 text-sm lg:text-3xl mt-20">
+  
+  <h3 class="text-3xl lg:text-4xl text-center font-bold pb-10">
+    TRANSCRIPT REQUESTS
+  </h3>
+  <div>
+    <input id="searchRequest" type="text"  placeholder="Search..." class="mb-3 p-2 shadow-sm shadow-blue-600 rounded-lg  w-full bg-white/80 backdrop-blur-2xl" oninput="handleSearch()"/> </div>
+  <div class="overflow-x-auto bg-white shadow-sm shadow-blue-600 rounded mt-10">
+
+  <div class="max-h-[700px] overflow-y-auto" id="scrollContainer">
+    <table class="w-full border-collapse">
+      
+      <thead class="bg-blue-800 text-white sticky top-0 z-10">
+        <tr>
+          <th class="p-2">ID</th>
+          <th class="p-2">Name</th>
+          <th class="p-2 md:table-cell">Email</th>
+          <th class="p-2 text-center">Payment</th>
+          <th class="p-2 text-center">Reference</th>
+          <th class="p-2 text-center">Status</th>
+          <th class="p-2 text-center">Date</th>
+          <th class="p-2 text-center">Action</th>
+        </tr>
+      </thead>
+
+      <tbody id="requests"></tbody>
+
+    </table>
+  </div>
+</div>  
+</section>
+
+<footer class="relative bg-slate-950 py-4 px-6 mt-auto lg:px-8 text-slate-300 text-xs lg:text-md">
+
+     <div class="flex flex-col md:flex-row justify-between items-center gap-2">  <div class="flex justify-center gap-1 md:text-left">&copy;<span id="year"></span><p>School Name. All rights reserved.</p></div>
+
+        <div class="flex flex-wrap justify-center gap-2">
+          <a href="privacy-policy.html" class="hover:text-blue-400 transition">
+            Privacy Policy
+          </a>
+
+          <a href="terms.html" class="hover:text-blue-400 transition">
+            Terms & Conditions
+          </a>
+
+          <a href="cookies.html" class="hover:text-blue-400 transition">
+            Cookie Policy
+          </a>
+
+          <a href="accessibility.html" class="hover:text-blue-400 transition">
+            Accessibility
+          </a>
+
+          <a href="faq.html" class="hover:text-blue-400 transition">
+            FAQ
+          </a>
+        </div>
+
+      </div>
+</footer>
+
+
+
+  <script src="request.js"></script> 
+   <script src="script.js"></script> 
+
+</body>
+</html>
+

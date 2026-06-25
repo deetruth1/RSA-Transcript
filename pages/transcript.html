@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Transcript</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <!-- html2canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    .page-break { page-break-before: always; }
+
+    #transcriptContent {
+      width: 210mm;
+      min-height: 297mm;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+
+<body class="p-4">
+
+  <div id="transcriptContent" class="bg-white p-10 mx-auto relative shadow">
+
+    <!-- FIX: removed HTML watermark — drawWatermark() in jsPDF handles it instead -->
+
+    <div class="relative z-10 grid place-items-center text-center">
+      <img class="w-12 h-12" src="svg/add.svg" crossorigin="anonymous">
+      <h1 class="text-xl font-bold">YOUR SCHOOL NAME</h1>
+      <p class="p-2">School Address</p>
+      <p class="p-2"><strong>Official Academic Transcript</strong></p>
+    </div>
+
+    <div class="relative z-10">
+      <h1><strong>STUDENT INFO</strong></h1>
+      <div id="studentInfo" class="mb-4"></div>
+    </div>
+
+    <div class="relative z-10">
+      <h1><strong>RESULTS</strong></h1>
+      <div id="resultTables" class="grid grid-cols-3 gap-2"></div>
+    </div>
+
+    <div class="relative z-10 pt-6">
+      <div class="flex justify-between mt-6">
+        <div class="text-center">_________________<br>Principal</div>
+        <div class="text-center">_________________<br>Date</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ACTION BUTTONS -->
+  <div class="relative flex justify-center gap-4 mt-6">
+    <button onclick="handleDownload()"
+      class="px-6 py-2 bg-blue-600 text-white rounded shadow">
+      Download PDF
+    </button>
+
+    <button onclick="handleSendEmail()"
+      class="px-6 py-2 bg-green-600 text-white rounded shadow">
+      Send to Email
+    </button>
+  </div>
+
+
+  <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+  
+  <script src="transcript.js"></script>
+  <script src="script.js"></script>
+
+</body>
+</html>

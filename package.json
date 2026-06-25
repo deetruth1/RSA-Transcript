@@ -1,0 +1,27 @@
+{
+  "name": "transcript",
+  "version": "1.0.0",
+  "description": "Transcript Generation and cryptography",
+  "keywords": [
+    "crypto"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "deetruth"
+  },
+  "license": "ISC",
+  "author": "Samuel Moses",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "body-parser": "^2.3.0",
+    "express": "^5.2.1",
+    "mongoose": "^9.7.2",
+    "multer": "^2.2.0",
+    "nodemon": "^3.1.14"
+  }
+}

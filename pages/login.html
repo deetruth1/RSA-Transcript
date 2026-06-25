@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login page</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+ <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> 
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="scroll-smooth flex flex-col w-[100vw] h-[100vh] bg-gradient-to-bl from-blue-350 via-blue-400 to-blue-500 text-slate-900">
+
+<div id="bg" class="fixed inset-0 z-0 overflow-hidden">
+
+  <!-- Gradient Layer (animated shift) -->
+  <div class="absolute inset-0 bg-white/20 backdrop-blur-lg animate-[bgshift_12s_ease-in-out_infinite]"></div>
+
+  <!-- Soft glow blobs -->
+  <div class="absolute -top-40 -left-40 w-[500px] h-[500px] bg-blue-400/30 blur-3xl rounded-full animate-pulse"></div>
+  <div class="absolute bottom-0 -right-40 w-[600px] h-[600px] bg-indigo-400/20 blur-3xl rounded-full animate-pulse"></div>
+
+  <!-- Floating particles -->
+  <div class="particles absolute inset-0"></div>
+</div>
+
+<nav class="fixed top-0 w-full z-40">
+  <div class="mx-auto flex justify-between items-center px-6 py-2 text-2xl border-b border-slate-800 bg-slate-900/90 backdrop-blur-md text-white">
+    <h1 class="heading">LOGO</h1>
+    </div>
+</nav>
+  
+ <section class="relative flex justify-between items-center lg:text-xl overflow-hidden">
+   <div>
+  <div id="carousel" class="lg:block lg:relative lg:overflow-hidden lg:w-[50vw] lg:h-[100vh] lg:shadow-2xl lg:shadow-blue-600 lg:backdrop-blur-3xl lg:flex lg:justify-center lg:items-center lg:text-center lg:hover:scale-105 lg:[mask-image:linear-gradient(to_right,transparent,black_20%,black_20%,transparent),radial-gradient(circle,black_20%,transparent_100%)] [mask-composite:intersect] lg:[-webkit-mask-composite:source-in]">
+  
+    <div id="carousel-overlay" class="carousel-overlay absolute inset-0 bg-gradient-to-r from-blue-900/70 via-purple-900/40 to-transparent z-10"></div>
+
+    <img src="svg/img1.jpg" class="carousel-image active absolute inset-0 object-center h-full w-full">
+    <img src="svg/img2.jpg" class="carousel-image absolute inset-0 object-center h-full w-full">
+    <img src="svg/img3.jpg" class="carousel-image absolute inset-0 object-center h-full w-full">
+    <img src="svg/img4.jpg" class="carousel-image absolute inset-0 object-center h-full w-full">
+    <img src="svg/img5.jpg" class="carousel-image absolute inset-0 object-center h-full w-full">
+    <img src="svg/img6.jpg" class="carousel-image absolute inset-0 object-center h-full w-full">
+    <img src="svg/img7.jpg" class="carousel-image absolute inset-0 object-center h-full w-full">
+  </div>
+   </div>
+   
+  <div class="w-full lg:p-12">
+   <div class="relative w-full h-[100vh] flex justify-center items-center">
+      <!-- Profile Card -->
+  <div class="absolute z-20 md:w-full mx-8 lg:max-w-xl shadow-blue-600 bg-white/80 backdrop-blur-2xl rounded-2xl shadow-sm mt-20 mx-2">
+    <div class="relative">
+      <div class="absolute -bottom-12 md:-bottom-16 left-0 flex justify-center w-full rounded-full">
+        <div class="flex justify-center w-24 h-24 lg:w-40 md:h-40 overflow-hidden shadow-xs rounded-full shadow-blue-600 bg-white/80 backdrop-blur-3xl">
+          <svg xmlns="http://www.w3.org/2000/svg"
+            class="w-28 h-28 md:w-46 md:h-46 rounded-full text-gray-400"
+            fill="currentColor"
+            viewBox="0 0 24 24">
+            <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+          </svg>
+      </div>
+      </div>
+    </div>
+
+     <!-- Login Form -->
+ <form id="loginForm" class="space-y-4 animate-fadeIn w-full px-6 pb-6 lg:px-10 lg:pb-10 pt-14 lg:pt-20">
+  <h2 class="text-2xl lg:text-4xl font-bold text-center mb-6">Login to your account</h2>
+
+  <div class="relative animate-slide-1 mb-8">
+    <input id="loginEmail" type="email" required
+      class="peer w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:outline-none focus:ring-blue-500 focus:ring-1 focus:border-blue-500 focus:scale-[1.02] pt-3 pb-1 px-4"
+      placeholder=" "/>
+    <label for="loginEmail"
+      class="absolute left-4 top-2 text-gray-500 transition-all duration-300 pointer-events-none
+             peer-focus:top-0.5 peer-focus:text-xs peer-focus:text-blue-600
+             peer-not-placeholder-shown:top-0.5 peer-not-placeholder-shown:text-xs">
+      Email
+    </label>
+  </div>
+
+  <div class="relative animate-slide-2 mb-8">
+    <input id="loginPassword" type="password" required
+      class="peer w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:outline-none focus:ring-blue-500 focus:ring-1 focus:border-blue-500 focus:scale-[1.02] pt-3 pb-1 px-4"
+      placeholder=" "/>
+    <label for="loginPassword"
+      class="absolute left-4 top-2 text-gray-500 transition-all duration-300 pointer-events-none
+             peer-focus:top-0.5 peer-focus:text-xs peer-focus:text-blue-600
+             peer-not-placeholder-shown:top-0.5 peer-not-placeholder-shown:text-xs">
+      Password
+    </label>
+  </div>
+
+  <button type="button" onclick="login()"
+    class="w-full shadow-sm shadow-blue-600 backdrop-blur-md bg-blue-600 text-white mt-4 py-2 px-4 rounded-lg hover:bg-blue-700 hover:scale-105 hover:shadow-md active:scale-95 transition">
+    Sign in
+  </button>
+</form>
+        </div>  </div>  </div>
+</section>
+
+   <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+   
+ <footer class="relative w-full bg-slate-950 p-2 lg:px-8 mt-auto text-slate-300 text-xs lg:text-md">
+
+     <div class="flex flex-col md:flex-row justify-between items-center gap-2">  <div class="flex justify-center gap-1 md:text-left">&copy;<span id="year"></span><p>School Name. All rights reserved.</p></div>
+
+        <div class="flex flex-wrap justify-center gap-2">
+          <a href="privacy-policy.html" class="hover:text-blue-400 transition">
+            Privacy Policy
+          </a>
+
+          <a href="terms.html" class="hover:text-blue-400 transition">
+            Terms & Conditions
+          </a>
+
+          <a href="cookies.html" class="hover:text-blue-400 transition">
+            Cookie Policy
+          </a>
+
+          <a href="accessibility.html" class="hover:text-blue-400 transition">
+            Accessibility
+          </a>
+
+          <a href="faq.html" class="hover:text-blue-400 transition">
+            FAQ
+          </a>
+        </div>
+
+      </div>
+</footer>
+  
+  <script src="script.js"></script> 
+</body>
+</html>
+

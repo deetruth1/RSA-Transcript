@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>admindash</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+ <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> 
+   <link rel="stylesheet" href="style.css">
+     <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const currentUser = JSON.parse(
+    localStorage.getItem("currentUser")  );
+  if (currentUser?.role !== "admin") {
+  window.location.href = "/login";
+}
+});
+  </script>
+</head>
+
+<body class="scroll-smooth flex flex-col min-h-screen bg-gradient-to-bl from-blue-350 via-blue-400 to-blue-500 text-slate-900">
+
+<div id="bg" class="fixed inset-0 z-0 overflow-hidden">
+
+  <!-- Gradient Layer (animated shift) -->
+  <div class="absolute inset-0 bg-white/20 backdrop-blur-lg animate-[bgshift_12s_ease-in-out_infinite]"></div>
+
+  <!-- Soft glow blobs -->
+  <div class="absolute -top-40 -left-40 w-[500px] h-[500px] bg-blue-400/30 blur-3xl rounded-full animate-pulse"></div>
+  <div class="absolute bottom-0 -right-40 w-[600px] h-[600px] bg-indigo-400/20 blur-3xl rounded-full animate-pulse"></div>
+
+  <!-- Floating particles -->
+  <div class="particles absolute inset-0"></div>
+</div>
+
+<nav class="md:hidden fixed top-0 w-full z-40">
+  <div class="mx-auto flex justify-between items-center px-6 py-2 text-2xl border-b border-slate-800 bg-slate-900/90 backdrop-blur-md text-white">
+    <h1 class="heading">LOGO</h1>
+     <div class="flex items-center gap-4">
+    <button id="menuBtn" class="px-2">☰</button>
+  </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="hidden fixed right-0 w-24 lg:w-40 shadow-md bg-white/30 backdrop-blur-md shadow-blue-900 rounded-b-lg text-center lg:text-4xl py-4 space-y-4 text-xl">
+     <a href="admindash.html" class="block text-md hover:text-white">Home</a>
+    <a href="profile.html" class="admin-only block text-md hover:text-white">Add</a>
+    <a href="edit.html" class="admin-only block text-md hover:text-white">Edit</a>
+    <a href="generate.html" class="block text-md hover:text-white">Generate</a>
+    <a href="request.html" class="block text-md hover:text-white">Requests</a>
+    <a href="sent.html" class="block text-md hover:text-white">Sent</a>
+    <button onclick="logout()" class="text-md text-red-700 hover:text-white">Sign Out</button>   </div>
+</nav>
+
+<div class="relative flex overflow-hidden">
+  <!-- ================= SIDEBAR ================= -->
+ <aside class="hidden md:flex md:w-64 flex-col fixed top-0 left-0 h-full bg-slate-950 p-5">
+
+    <h2 class="text-2xl lg:text-5xl text-white font-bold my-10">🎓 ADMIN</h2>
+
+   <nav class="space-y-4 text-white text-2xl">
+    <img src="svg/img3.png" class="w-48 h-48 block absolute bottom-90 transition-all duration-300 hover:scale-100 animate-pulse">
+    <button onclick="logout()" class="block absolute bottom-20 bg-white justify-self-center text-sm rounded-lg px-4 py-2 text-red-900 hover:text-white">Sign Out</button>  
+    </nav>
+
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+   <main class="relative flex-1 mt-20 md:ml-64 md:overflow-y-auto">
+<section class="relative px-4 lg:px-36 text-sm lg:text-3xl">
+  
+  <h3 class="text-3xl lg:text-4xl text-center font-bold pb-10">
+    Registered Users
+  </h3>
+  <div>
+    <input id="searchUser" type="text"  placeholder="Search..." class="mb-3 p-2 shadow-sm shadow-blue-600 rounded-lg  w-full bg-white/80 backdrop-blur-2xl"   onkeyup="renderUsers()"/> </div>
+
+  <div class="overflow-x-auto bg-white shadow-sm shadow-blue-600 rounded mt-10">
+
+  <div class="max-h-[700px] overflow-y-auto" id="scrollContainer">
+    <table class="w-full border-collapse">
+      
+      <thead class="bg-blue-800 text-white sticky top-0 z-10">
+        <tr>
+          <th class="p-2">Username</th>
+          <th class="p-2">Email</th>
+          <th class="p-2 text-center">Role</th>
+          <th class="p-2 text-center">Action</th>
+        </tr>
+      </thead>
+
+      <tbody id="usersTable"></tbody>
+
+    </table>
+  </div>
+</div>  
+</section>
+</main>
+
+</div>
+ 
+ 
+  
+  <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+<footer class="relative bg-slate-950 p-4 mt-auto md:ml-64 lg:px-8 text-slate-300 text-xs lg:text-md">
+
+     <div class="flex flex-col md:flex-row justify-between items-center gap-2">  <div class="flex justify-center gap-1 md:text-left">&copy;<span id="year"></span><p>School Name. All rights reserved.</p></div>
+
+        <div class="flex flex-wrap justify-center gap-2">
+          <a href="privacy-policy.html" class="hover:text-blue-400 transition">
+            Privacy Policy
+          </a>
+
+          <a href="terms.html" class="hover:text-blue-400 transition">
+            Terms & Conditions
+          </a>
+
+          <a href="cookies.html" class="hover:text-blue-400 transition">
+            Cookie Policy
+          </a>
+
+          <a href="accessibility.html" class="hover:text-blue-400 transition">
+            Accessibility
+          </a>
+
+          <a href="faq.html" class="hover:text-blue-400 transition">
+            FAQ
+          </a>
+        </div>
+
+      </div>
+</footer>
+  
+
+  <script src="dashboard.js"></script> 
+   <script src="script.js"></script> 
+   
+</body>
+</html>
+

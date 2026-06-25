@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generate Transcript</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+ <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> 
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+   <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="scroll-smooth flex flex-col min-h-screen bg-gradient-to-bl from-blue-350 via-blue-400 to-blue-500 text-slate-900">
+
+<div id="bg" class="fixed inset-0 z-0 overflow-hidden">
+
+  <!-- Gradient Layer (animated shift) -->
+  <div class="absolute inset-0 bg-white/20 backdrop-blur-lg animate-[bgshift_12s_ease-in-out_infinite]"></div>
+
+  <!-- Soft glow blobs -->
+  <div class="absolute -top-40 -left-40 w-[500px] h-[500px] bg-blue-400/30 blur-3xl rounded-full animate-pulse"></div>
+  <div class="absolute bottom-0 -right-40 w-[600px] h-[600px] bg-indigo-400/20 blur-3xl rounded-full animate-pulse"></div>
+
+  <!-- Floating particles -->
+  <div class="particles absolute inset-0"></div>
+</div>
+
+<nav class="fixed top-0 w-full z-40">
+  <div class="mx-auto flex justify-between items-center px-6 py-2 text-2xl border-b border-slate-800 bg-slate-900/90 backdrop-blur-md text-white">
+    <h1 class="heading">LOGO</h1>
+     <div class="flex items-center gap-4">
+    <button id="menuBtn" class="px-2">☰</button>
+  </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="hidden fixed right-0 w-24 lg:w-40 shadow-md bg-white/30 backdrop-blur-md shadow-blue-900 rounded-b-lg text-center lg:text-4xl py-4 space-y-4 text-xl">
+    <a href="admindash.html" class="block text-md hover:text-white">Home</a>
+    <a href="profile.html" class="admin-only block text-md hover:text-white">Add</a>
+    <a href="edit.html" class="admin-only block text-md hover:text-white">Edit</a>
+    <a href="generate.html" class="block text-md hover:text-white">Generate</a>
+    <a href="request.html" class="block text-md hover:text-white">Requests</a>
+    <a href="sent.html" class="block text-md hover:text-white">Sent</a>
+    <button onclick="logout()" class="text-md text-red-700 hover:text-white">Sign Out</button>   </div>
+</nav>
+  
+ <section id="" class="relative px-4 lg:px-12">
+   <h3 class="text-3xl lg:text-4xl text-center mt-20 font-bold p-2">GENERATE TRANSCRIPT</h3>
+   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 text-sm lg:text-3xl mt-4">
+    <!-- Student Info -->
+  <div class="col-span-1 lg:h-36 shadow-blue-300 bg-white/50 backdrop-blur-md rounded-2xl shadow-sm p-4">
+     <h1 class="text-2xl lg:text-4xl font-bold py-2 px-4">Search Result</h1>
+     <div class="flex justify-between gap-2">
+      <input id="studentId" type="text" 
+   placeholder="Enter Student Id"
+        class="lg:w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 px-2 py-1.5">
+     
+   <button type="button" onclick="filterResults()" class="w-24 shadow-sm shadow-black/50 backdrop-blur-md bg-blue-600 text-white px-2 py-0.5 rounded-lg hover:bg-blue-700 transition">Search</button>
+   </div>
+   <div id="idBox" class="w-fit flex items-center gap-2 shadow-sm shadow-black/50 backdrop-blur-md">
+    <div id="studentIdBox"
+      class="hidden px-3 py-2 text-white rounded shadow-2xl font-mono text-md">
+      <!-- ID will be injected here -->
+          <button onclick="copy()" class="text-blue-600 text-md hover:text-blue-800">Copy</button>
+    </div>
+  </div>
+  </div>
+
+<!-- Result Table -->
+  <div class="w-full lg:col-span-2 bg-white shadow-blue-600 backdrop-blur-md rounded-2xl shadow-xs mb-4">
+  <h3 id="header" class="tab-content hidden lg:block text-xl lg:text-3xl lg:text-center font-bold p-4">ACADEMIC RECORDS</h3>
+  <table class="w-full">
+    <tbody id="studentRecord"></tbody>
+  </table>
+</div>
+</div>
+</section>
+
+  <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+  
+<footer class="relative bg-slate-950 py-4 px-6 mt-auto lg:px-8 text-slate-300 text-xs lg:text-md">
+
+     <div class="flex flex-col md:flex-row justify-between items-center gap-2">  <div class="flex justify-center gap-1 md:text-left">&copy;<span id="year"></span><p>School Name. All rights reserved.</p></div>
+
+        <div class="flex flex-wrap justify-center gap-2">
+          <a href="privacy-policy.html" class="hover:text-blue-400 transition">
+            Privacy Policy
+          </a>
+
+          <a href="terms.html" class="hover:text-blue-400 transition">
+            Terms & Conditions
+          </a>
+
+          <a href="cookies.html" class="hover:text-blue-400 transition">
+            Cookie Policy
+          </a>
+
+          <a href="accessibility.html" class="hover:text-blue-400 transition">
+            Accessibility
+          </a>
+
+          <a href="faq.html" class="hover:text-blue-400 transition">
+            FAQ
+          </a>
+        </div>
+
+      </div>
+</footer>
+  
+   <script src="generate.js"></script> 
+   <script src="script.js"></script> 
+   
+</body>
+</html>
