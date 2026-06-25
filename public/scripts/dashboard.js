@@ -10,7 +10,13 @@
 //   window.location.href = "/login";
 // }
 // });
-
+// axios.post('/adduser', { 
+//   username: 'test',
+//   email: "test@gmail.com",
+//   password: '123'
+// })
+// .then(res => console.log(res.data))
+// .catch(err => console.log(err))
 // ================= GET UNIQUE STUDENTS =================
 function getTotalStudentsFromResults() {
   const results = JSON.parse(localStorage.getItem("results")) || {};

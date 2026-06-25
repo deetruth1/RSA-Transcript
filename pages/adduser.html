@@ -73,31 +73,31 @@
   <div class="shadow-blue-600 bg-white/80 backdrop-blur-2xl rounded-2xl shadow-sm p-4 mt-10">
   <h2 class="text-2xl lg:text-4xl font-bold text-center mb-6">Add Admin Users</h2>
 
-    <form action="/adduser" method="post" id="loginForm" class="space-y-4">
+    <form action="/users/adduser" id="adduser" method="post" class="space-y-4">
         <div>
             <label for="text" class="block font-medium">Username</label>
-            <input id="fullName" type="text" required
+            <input id="fullName" name="username" type="text" required
               class="mt-1 w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2" placeholder="Enter Username"/>
           </div>
           <div>
             <label for="email" class="block font-medium">Email</label>
-            <input id="email" type="email" required
+            <input id="email" name="email" type="email" required
               class="mt-1 w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2" placeholder="Enter user email"/>
           </div>
           <div>
             <label for="password" class="block font-medium">Password</label>
-            <input id="password" type="password" required
+            <input id="password" name="password" type="password" required
               class="mt-1 w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2" placeholder="Enter your password"/>
           </div>
   
        <div>
      <label for="confirm password" class="block font-medium">Confirm Password</label>
-    <input id="confirmPassword" type="password" required class="mt-1 w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2" placeholder="Enter your password"/>
+    <input id="confirmPassword" name="confirmPassword" type="password" required class="mt-1 w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2" placeholder="Enter your password"/>
           </div>
     <select id="role" class="hidden">
  <option value="user">User</option>
 </select>
-    <button type="button" 
+    <button type="submit" 
       class="w-full shadow-sm shadow-blue-600 backdrop-blur-md bg-blue-600 
       text-white mt-4 py-2 px-4 rounded-lg hover:bg-blue-700 transition">Submit
     </button>
@@ -139,8 +139,8 @@
       </div>
 </footer>
   
-
-  <script src="/scripts/dashboard.js"></script> 
+  <script src="/scripts/axios.min.js"></script>
+  <script src="/scripts/dashboard.js"></script>
    <!-- <script src="/scripts/script.js"></script>  -->
    
 </body>
