@@ -273,11 +273,11 @@ function loadMyRequests() {
 document.addEventListener("DOMContentLoaded", () => {
   const user = JSON.parse(localStorage.getItem("currentUser"));
 
-  if (!user || !user.studentId) {
-    window.location.href = "login.html";
-     showToast("No user logged in", "error");
-    return;
-  }
+  // if (!user || !user.studentId) {
+  //   window.location.href = "login.html";
+  //    showToast("No user logged in", "error");
+  //   return;
+  // }
 
   renderStudentBio(user.studentId);
   render(user.studentId);

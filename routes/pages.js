@@ -162,6 +162,10 @@ router.get('/privacy-policy', (req, res) => {
     })
 })
 
+router.post('/student', () =>{
+    const {surname, firstname, othername, studentId, email, year, level} = req.body
+})
+
 
 
 

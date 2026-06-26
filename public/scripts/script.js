@@ -241,7 +241,7 @@ showToast("Logged out successfully", "success");
 localStorage.removeItem(LOGIN_KEY);
 
 setTimeout(() => {
-window.location.href = "login.html";
+window.location.href = "/login";
 }, 500);
 }
 
