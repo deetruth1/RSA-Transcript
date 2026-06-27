@@ -1,6 +1,10 @@
 const express = require("express")
 const router = express.Router()
+const bcrypt = require("bcrypt")
+const profile = require("../models/profile")
 const path = require("path")
+const { log } = require("console")
+
 
 router.get('/', (req, res) =>{
     const filepath = path.join(__dirname, '../pages/index.html')
@@ -161,12 +165,6 @@ router.get('/privacy-policy', (req, res) => {
         }
     })
 })
-
-router.post('/student', () =>{
-    const {surname, firstname, othername, studentId, email, year, level} = req.body
-})
-
-
 
 
 module.exports = router

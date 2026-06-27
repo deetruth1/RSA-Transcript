@@ -1,8 +1,8 @@
 const user = JSON.parse(localStorage.getItem("currentUser"));
 
-if (!user || user.role !== "admin") {
-  window.location.href = "login.html";
-}
+// if (!user || user.role !== "admin") {
+//   window.location.href = "login.html";
+// }
 
 const resultStore = JSON.parse(localStorage.getItem("results")) || {};
 
@@ -16,8 +16,8 @@ const termOrder = ["First Term", "Second Term", "Third Term"];
 const schoolOrder = ["SS1", "SS2", "SS3"];
   
 function addRow(existingData = {}) {
-  rowId++;
-  localStorage.setItem("rowId", rowId);
+  // rowId++;
+  // // localStorage.setItem("rowId", rowId);
 
   const row = document.createElement("div");
   row.className = "flex justify-between gap-2 lg:grid lg:grid-cols-2 lg:gap-6 mb-2";
@@ -26,7 +26,7 @@ function addRow(existingData = {}) {
  row.innerHTML = `
   <div class="flex flex-col">
     <label class="block font-medium px-1.5 mb-1">Subject</label>
-    <select class="w-40 md:w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 px-4 lg:px-6 py-2 subject" data-id="${rowId}" required>
+    <select class="w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 px-4 lg:px-6 py-2 subject" data-id="${rowId}" required>
       <option value="">Select Subject</option>
       <option value="Mathematics">Mathematics</option>
       <option value="English Language">English</option>
@@ -42,7 +42,7 @@ function addRow(existingData = {}) {
     </select>
   </div>
 
-  <div class="flex flex-col">
+  <div class="flex flex-col w-full">
     <label class="block font-medium px-1.5 mb-1">Grade</label>
 
     <div class="flex items-center gap-2">
@@ -181,20 +181,34 @@ function profile() {
 }
 
 // SUBMIT FORM
-document.getElementById("courseForm").addEventListener("submit", (e) => {
+document.getElementById("courseForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const result = profile();
+  const result = profile(); 
+  if (!result) return;
 
-   if (!result) {
-    return null;
+  try {
+    const response = await fetch("http://localhost:3000/users/profile", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(result)
+    });
+
+    if (response.ok) {
+      showToast("All records saved into the Database successfully!", "success");
+      saveData(result.session, result.term, result.data, result.school, result.student); 
+    } else {
+      const errorData = await response.json().catch(() => ({}));
+      showToast(errorData.message || "Failed to save records to server.", "error");
+    }
+
+  } catch (error) {
+    console.error("Network connection error:", error);
+    showToast("Cannot connect to server.", "error");
   }
-
-  const { session, term, school, student, data } = result;
-  saveData(session, term, data, school, student);
- showToast("Record Saved Successfully", "success");
 });
-
 function saveData(session, term, data, school, students) {
   const USERS_KEY = "registeredUsers";
 

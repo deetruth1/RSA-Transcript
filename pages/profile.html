@@ -8,7 +8,7 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> 
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 
   <body class="scroll-smooth flex flex-col min-h-screen bg-gradient-to-bl from-blue-350 via-blue-400 to-blue-500 text-slate-900">
@@ -51,39 +51,39 @@
     <!-- Student Info -->
   <div class="w-full py-4 lg:p-12 shadow-blue-600 backdrop-blur-md rounded-3xl shadow-sm shadow-blue-6 text-sm lg:text-xl bg-white/70 text-gray-800">
      <h1 class="text-center text-blue-500 text-2xl lg:text-4xl font-bold m-4">STUDENT BIO</h1>
-   <form id="courseForm" class="p-4 space-y-4">
+   <form action="/users/profile" method="post" id="courseForm" class="p-4 space-y-4">
      
     <div class="grid grid-cols-3 gap-2 lg:gap-6">
     <div class="flex flex-col">  <label class="block font-medium px-1.5 mb-1">Surname</label>
-      <input id="surname" type="text" placeholder="Surname"
+      <input id="surname" name="surname" type="text" placeholder="Surname"
         class="w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5" required></div>
     
      <div class="flex flex-col">  <label class="block font-medium px-1.5 mb-1">First Name</label>
-      <input id="firstName" type="text" placeholder="First Name"
+      <input id="firstName" name="firstName"  type="text" placeholder="First Name"
         class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5">
         </div>
         
       <div class="flex flex-col">  <label class="block font-medium px-1.5 mb-1">Other Name</label>
-      <input id="otherName" type="text" placeholder="Other name"
+      <input id="otherName" name="otherName" type="text" placeholder="Other name"
         class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5">
         </div>
          </div>
    <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
    <div class="col-span-2 lg:col-span-1 flex flex-col">  <label class="block font-medium px-1.5 mb-1">Email</label>
-      <input id="email" type="email" placeholder="Email"
+      <input id="email" name="email" type="email" placeholder="Email"
         class="w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5" required></div>      
    <div class="flex flex-col">  <label class="block font-medium px-1.5 mb-1">Student ID</label>
-      <input id="studentId" type="text" placeholder="Student Id"
+      <input id="studentId" name="studentId" type="text" placeholder="Student Id"
         class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5">
         </div>
         
     <div class="flex flex-col">  <label class="block font-medium px-1.5 mb-1">Year</label>
-    <select id="session"  class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5" required>
+    <select id="session"  name="year" class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5" required>
     <option value="">Select Year</option>
     </select></div>
   
    <div class="flex flex-col">  <label class="block font-medium px-1.5 mb-1">Class</label>
-    <select id="school" class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5" required>
+    <select id="school" name="level" class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5" required>
         <option value="">Select Class</option>
         <option value="SS1">SS1</option>
         <option value="SS2">SS2</option>
@@ -91,7 +91,7 @@
       </select></div>
       
     <div class="flex flex-col">  <label class="block font-medium px-1.5 mb-1">Term</label>
-      <select id="term" class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5" required>
+      <select id="term" name="term" class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5" required>
       <option value="">Select Term</option>
         <option value="First Term">First Term</option>
         <option value="Second Term">Second Term</option>
@@ -109,7 +109,7 @@
      <button type="button" id="toggleDeleteBtn" onclick="toggleDeleteMode()"  class="shadow-sm shadow-blue-600 backdrop-blur-md bg-red-600 text-white mt-4 px-2 lg:py-2 rounded-lg hover:bg-blue-700 transition">Delete</button>
         <button type="button" onclick="handlePreview()" class="shadow-sm shadow-blue-600 backdrop-blur-md bg-yellow-600 text-white mt-4 px-2 lg:py-2 rounded-lg hover:bg-blue-700 transition">Preview</button>
         <button type="submit" class="shadow-sm shadow-blue-600 backdrop-blur-md bg-blue-600 text-white mt-4 px-2 lg:py-2 rounded-lg hover:bg-blue-700 transition">Save</button>
-        </form>
+  </form>
 </section>
 
 <!-- Result Table -->
@@ -121,7 +121,7 @@
 </section>
 
 <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
-<footer class="relative bg-slate-950 py-4 px-6 mt-auto lg:px-8 text-slate-300 text-xs lg:text-md">
+<!-- <footer class="relative bg-slate-950 py-4 px-6 mt-auto lg:px-8 text-slate-300 text-xs lg:text-md">
 
      <div class="flex flex-col md:flex-row justify-between items-center gap-2">  <div class="flex justify-center gap-1 md:text-left">&copy;<span id="year"></span><p>School Name. All rights reserved.</p></div>
 
@@ -148,12 +148,12 @@
         </div>
 
       </div>
-</footer>
+</footer> -->
 
 
   
-   <script src="profile.js"></script> 
-   <script src="script.js"></script> 
+   <script src="/scripts/profile.js"></script> 
+   <script src="/scripts/script.js"></script> 
    
 </body>
 </html>

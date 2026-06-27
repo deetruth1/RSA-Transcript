@@ -1,9 +1,11 @@
 const express = require('express')
 const bcrypt = require('bcrypt')
-const user = require('../models/users')
+// const user = require('../models/users')
 const router = express.Router()
 const path = require('path')
 const users = require('../models/users')
+const profile = require('../models/profile')
+const { log } = require('console')
 
 router.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, '../pages/login.html'))
@@ -20,8 +22,7 @@ router.post('/adduser', async (req, res) =>{
         console.log(req.body);
         
         if (!username || !email || !password) {
-            return
-            res.status(400).send('All fields required')
+            return res.status(400).send('All fields required')
         }
 
         // validation 
@@ -41,7 +42,7 @@ router.post('/adduser', async (req, res) =>{
         // password hash    
         const hashedpassword = await bcrypt.hash(password, 12)
 
-        const newUser = new user({
+        const newUser = new User({
             username,
             email,
             password: hashedpassword
@@ -88,4 +89,36 @@ router.post('/login', async (req, res) =>{
     }
 
 })
+
+router.post('/profile', async (req, res) => {
+    try {
+        const { session, term, school, student, data } = req.body;
+
+        // Validation check
+        if (!session || !term || !school || !student || !data || data.length === 0) {
+            return res.status(400).json({ message: "Please fill out all required fields." });
+        }
+
+        const newProfile = new profile({
+            session,
+            term,
+            school,
+            surname: student.surname,
+            firstName: student.firstName,
+            otherName: student.otherName,
+            studentId: student.studentId,
+            email: student.email,
+            results: data
+        });
+
+        await newProfile.save();
+        console.log("New student added successfully!", newProfile._id);
+        
+        return res.status(201).json({ success: true, message: "Record logged into Database successfully!" });
+            
+    } catch (error) {
+        console.error("Backend error:", error);
+        res.status(500).json({ message: "Server error occurred." });
+    }
+});
 module.exports = router
