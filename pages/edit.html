@@ -116,16 +116,16 @@
    <h2 class="text-2xl lg:text-3xl mt-8 font-bold mb-4 text-center text-blue-500">SUBJECT RECORDS</h2>
     <div id="courseContainer" class="lg:grid lg:grid-cols-2 lg:gap-4"></div>
         <!-- Buttons -->
-    <div class="grid grid-cols-4 gap-2 mb-2 px-2 text-white">
-   <button type="button" onclick="openRecord('${key}')" class="bg-blue-600 rounded shadow-sm py-1 lg:px-2">Back</button>
-   
- <button type="button" onclick="addRow()" class="bg-blue-600 rounded shadow-sm py-1 lg:px-2">Add Subject</button>
-
-<button type="button" id="toggleDeleteBtn" onclick="toggleDeleteMode()" 
-class="bg-yellow-600 py-1 lg:px-2 rounded shadow-sm">Delete row</button>
-
-<button type="button" onclick="handleSubmit()" class="bg-green-600 py-1 lg:px-2 rounded shadow-sm">Save</button>
-    </div>
+      <div class="grid grid-cols-2 lg:grid-cols-5 gap-2 mb-2 px-2 text-white">
+  <button type="button" onclick="openRecord()" class="bg-blue-600 rounded shadow-sm py-1 hover:bg-blue-700 transition">Back</button>
+  <button type="button" onclick="addRow()" class="bg-blue-600 rounded shadow-sm py-1 hover:bg-blue-700 transition">Add Subject</button>
+  
+  <button type="button" id="toggleDeleteBtn" onclick="toggleDeleteMode()" class="bg-yellow-600 py-1 rounded shadow-sm hover:bg-yellow-700 transition">Remove Row</button>
+  
+  <button type="button" onclick="deleteEntireProfile()" class="bg-red-600 py-1 rounded shadow-sm hover:bg-red-700 transition col-span-2 lg:col-span-1">Delete Entire Profile</button>
+  
+  <button type="button" onclick="handleSubmit()" class="bg-green-600 py-1 rounded shadow-sm hover:bg-green-700 transition col-span-2 lg:col-span-1">Save Changes</button>
+</div>
     </form>
  
    </div>

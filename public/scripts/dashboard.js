@@ -18,24 +18,40 @@
 // .then(res => console.log(res.data))
 // .catch(err => console.log(err))
 // ================= GET UNIQUE STUDENTS =================
-function getTotalStudentsFromResults() {
-  const results = JSON.parse(localStorage.getItem("results")) || {};
+// Inside your dashboard frontend javascript file (e.g., admindash.js)
+async function initializeDashboardStats() {
+  try {
+    const response = await fetch('http://localhost:3000/users/dashboard/stats');
+    if (!response.ok) throw new Error("Could not download metrics pipeline data.");
+    
+    const stats = await response.json();
+    console.log("Stats received from backend:", stats); 
 
-  const studentMap = new Map();
+    updateCounterDOM("totalStudentsCountElement", stats.totalStudents);
+    updateCounterDOM("totalSubjectsCountElement", stats.totalSubjectsLogged);
 
-  Object.values(results).forEach(store => {
-    const students = store.students || {};
+  } catch (error) {
+    console.error("Failed to safely update dashboard metric counters:", error);
+    updateCounterDOM("totalStudentsCountElement", 0);
+  }
+}
 
-    Object.values(students).forEach(s => {
-      const student = s.student;
+function updateCounterDOM(elementId, value) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.textContent = value;
+  } else {
+    console.warn(`Could not find HTML element with id="${elementId}" on this page.`);
+  }
+}
 
-      if (student?.studentId) {
-        studentMap.set(student.studentId, student);
-      }
-    });
-  });
+document.addEventListener("DOMContentLoaded", initializeDashboardStats);
 
-  return studentMap.size;
+function updateCounterDOM(elementId, value) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.textContent = value;
+  }
 }
 
 // ================= DASHBOARD LOAD =================

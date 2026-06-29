@@ -177,4 +177,51 @@ router.put('/profile/:id', async (req, res) =>{
     }
 })
 
+router.delete('/profile/:id', async (req, res) => {
+    try {
+        const deletedRecords = await profile.findByIdAndDelete(req.params.id)
+
+        if (!deletedRecords) {
+            return res.status(400).json({message: "Profile Records could not br found!"})
+        }
+        
+        console.log(`Deleted entire profile for document ID: ${req.params.id}`);
+        return res.status(200).json({ success: true, message: "Entire profile row cleared successfully." });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error occurred during deletion." });
+    }
+})
+
+// GET COMBINED DASHBOARD METRICS FROM MONGODB
+// GET TOTAL UNIQUE STUDENTS COUNT FROM MONGO
+router.get('/dashboard/stats', async (req, res) => {
+    try {
+        // 1. Get an array of all unique studentIds present across your profiles collection
+        const uniqueStudentIds = await profile.distinct("studentId");
+        
+        // 2. Count how many items are in that unique list
+        const totalStudents = uniqueStudentIds.length;
+
+        // 3. Count total nested subject rows across every single document profile
+        const totalSubjectEntries = await profile.aggregate([
+            { $project: { numberOfSubjects: { $size: { $ifNull: ["$results", []] } } } },
+            { $group: { _id: null, total: { $sum: "$numberOfSubjects" } } }
+        ]);
+
+        const subjectCount = totalSubjectEntries.length > 0 ? totalSubjectEntries[0].total : 0;
+
+        // 4. Send metrics safely over to your admin page frontend
+        return res.status(200).json({
+            success: true,
+            totalStudents: totalStudents,
+            totalSubjectsLogged: subjectCount
+        });
+
+    } catch (error) {
+        console.error("Failed to build dashboard analytics:", error);
+        return res.status(500).json({ message: "Internal server dashboard query failure." });
+    }
+});
+
 module.exports = router

@@ -63,16 +63,61 @@ function addRow(existingData = {}) {
   if (existingData.grade) row.querySelector(".grade").value = existingData.grade;
 }
 
-// Global removal engine for visual DOM row elements
 document.addEventListener("click", (e) => {
   if (e.target.classList.contains("delete-btn")) {
     const row = e.target.closest("[data-id]");
     if (!row) return;
-    if (confirm("Remove this subject row?")) {
-      row.remove();
+    
+    if (confirm("Remove this subject row from the screen?")) {
+      row.remove(); 
     }
   }
-});  
+});
+
+function toggleDeleteMode() {
+  deleteMode = !deleteMode;
+  const toggleBtn = document.getElementById("toggleDeleteBtn");
+  
+
+  document.querySelectorAll(".delete-btn").forEach(btn => btn.classList.toggle("hidden", !deleteMode));
+  
+  if (toggleBtn) {
+    toggleBtn.classList.toggle("bg-red-600", deleteMode);
+    toggleBtn.innerText = deleteMode ? "Exit Row Mode" : "Remove Row";
+  }
+}
+
+
+async function deleteEntireProfile() {
+  if (!currentDatabaseId) {
+    alert("No active record selected to delete.");
+    return;
+  }
+
+  if (!confirm("⚠️ WARNING:\n\nAre you absolutely sure you want to completely delete this student's entire academic profile from the database?\n\nThis action cannot be undone.")) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`http://localhost:3000/users/profile/${currentDatabaseId}`, {
+      method: "DELETE"
+    });
+
+    if (response.ok) {
+      alert("Academic portfolio completely purged from database.");
+      
+      document.getElementById("studentId").value = "";
+      studentRecord.innerHTML = "";
+      openRecord();
+    } else {
+      const errData = await response.json().catch(() => ({}));
+      alert(errData.message || "Failed to delete database profile row.");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Network error connecting to server.");
+  }
+}
 
 function toggleDeleteMode() {
   deleteMode = !deleteMode;
@@ -85,10 +130,7 @@ function toggleDeleteMode() {
     toggleBtn.classList.toggle("text-white", deleteMode);
   }
 }
-
-// 2. SEARCH ENGINE: PULL DATA DIRECTLY FROM MONGODB
 async function filterResults() {
-  // ✅ Rename the domestic selector variable to "inputEl" to completely avoid global naming clashes
   const inputEl = document.getElementById("studentId");
   
   if (!inputEl) {
@@ -107,7 +149,6 @@ async function filterResults() {
   studentRecord.innerHTML = "";
 
   try {
-    // Fire the query with the safely isolated variable string
     const response = await fetch(`http://localhost:3000/users/search/profile?studentId=${id}`);
     
     if (!response.ok) {
@@ -159,21 +200,18 @@ async function filterResults() {
 
   } catch (error) {
     console.error(error);
-    showToast("Error establishing connection with database pipeline.", "error");
+    showToast("Error establishing connection with database", "error");
   }
 } 
 
-// 3. TRANSITION TO EDIT DASHBOARD LAYER
 async function openEdit() {
   if (!currentDatabaseId) return;
   showTab("edits");
 
   try {
-    // Look up the clean database entry by _id
     const response = await fetch(`http://localhost:3000/users/profile/${currentDatabaseId}`);
     const record = await response.json();
 
-    // Fill textual static and input tags
     surname.value = record.surname || "";
     firstName.value = record.firstName || "";
     otherName.value = record.otherName || "";
@@ -198,14 +236,12 @@ async function openEdit() {
   }
 }
 
-// 4. PUT REQUEST: SAVE MERGED DOCUMENT RECORD TO SERVER
 async function handleSubmit() {
   if (!currentDatabaseId) return showToast("Missing structural context key", "error");
 
   const term = document.getElementById("editTerm").value;
   if (!term) return showToast("Please select a target active term", "error");
 
-  // Read clean input lists
   const rows = document.querySelectorAll("#courseContainer > .subject-row");
   const nestedResults = [];
 
@@ -217,7 +253,6 @@ async function handleSubmit() {
     nestedResults.push({ subject, grade });
   }
 
-  // Pack data to match backend schema expectation
   const updatedPayload = {
     surname: surname.value.trim(),
     firstName: firstName.value.trim(),
@@ -235,8 +270,8 @@ async function handleSubmit() {
 
     if (response.ok) {
       showToast("Student profile successfully updated in database!", "success");
-      openRecord();      // Return to review mode
-      filterResults();   // Instantly update overview metrics
+      openRecord();     
+      filterResults();   
     } else {
       const errData = await response.json().catch(() => ({}));
       showToast(errData.message || "Failed saving payload data.", "error");
