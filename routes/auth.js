@@ -5,7 +5,7 @@ const router = express.Router()
 const path = require('path')
 const users = require('../models/users')
 const profile = require('../models/profile')
-const { log } = require('console')
+// const { log } = require('console') 
 
 router.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, '../pages/login.html'))
@@ -121,4 +121,60 @@ router.post('/profile', async (req, res) => {
         res.status(500).json({ message: "Server error occurred." });
     }
 });
+
+router.get('/search/profile', async (req, res) =>{
+    try {
+        const {studentId} = req.query
+        // console.log(studentId); 
+        const record = await profile.findOne({studentId: studentId});
+        // console.log(record);
+        if (!record) {
+            return res.status(400).json({message: "Student record not found"})
+        }
+        return res.status(200).json(record)
+    
+    } catch (error) {
+        res.status(500).json({message: "Internal Server error"})
+    }
+})
+
+router.get('/profile/:id', async (req, res) =>{
+    try {
+        const record = await profile.findById(req.params.id)
+        if (!record) {
+            return res.status(400).json({message: "record not found"})
+        }
+        return res.status(200).json(record)
+    } catch (error) {
+        return res.status(500).json({message: "Internal Server Error"})
+    }
+})
+
+router.put('/profile/:id', async (req, res) =>{
+    try {
+        const {surname, firstName, otherName, term, results} = req.body
+
+        const updatedRecords = await profile.findByIdAndUpdate(
+            req.params.id,
+            {
+                $set:{
+                    surname,
+                    firstName,
+                    otherName,
+                    term,
+                    results: results
+                }
+            },
+            {new: true, runValidators: true}
+        )
+
+        if (!updatedRecords) {
+            return res.status(400).json({message: "Document Reference Missing!"})
+        }
+        return res.status(200).json(updatedRecords)
+    } catch (error) {
+        return res.status(500).json({message: "Failed to persist document modifications."})
+    }
+})
+
 module.exports = router

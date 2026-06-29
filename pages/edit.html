@@ -8,7 +8,7 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body class="scroll-smooth flex flex-col min-h-screen bg-gradient-to-bl from-blue-350 via-blue-400 to-blue-500 text-slate-900">
@@ -36,12 +36,12 @@
 
   <!-- Mobile Menu -->
   <div id="mobileMenu" class="hidden fixed right-0 w-24 lg:w-40 shadow-md bg-white/30 backdrop-blur-md shadow-blue-900 rounded-b-lg text-center lg:text-4xl py-4 space-y-4 text-xl">
-    <a href="admindash.html" class="block text-md hover:text-white">Home</a>
-    <a href="profile.html" class="admin-only block text-md hover:text-white">Add</a>
-    <a href="edit.html" class="admin-only block text-md hover:text-white">Edit</a>
-    <a href="generate.html" class="block text-md hover:text-white">Generate</a>
-    <a href="request.html" class="block text-md hover:text-white">Requests</a>
-    <a href="sent.html" class="block text-md hover:text-white">Sent</a>
+    <a href="/Aadmindash class="block text-md hover:text-white">Home</a>
+    <a href="/profile" class="admin-only block text-md hover:text-white">Add</a>
+    <a href="/edit" class="admin-only block text-md hover:text-white">Edit</a>
+    <a href="/generate" class="block text-md hover:text-white">Generate</a>
+    <a href="/request" class="block text-md hover:text-white">Requests</a>
+    <a href="/sent" class="block text-md hover:text-white">Sent</a>
     <button onclick="logout()" class="text-md text-red-700 hover:text-white">Sign Out</button>   </div>
 </nav>
 
@@ -53,9 +53,10 @@
   <div class="col-span-1 lg:h-32 shadow-blue-300 bg-white backdrop-blur-md rounded-2xl shadow-sm p-2">
      <h1 class="text-2xl lg:text-3xl font-bold px-4 lg:mt-2">Search Result</h1>
      <div class="flex justify-between gap-2 px-2 mt-2 mb-1">
-      <input id="studentId" type="text" 
-   placeholder="Enter Student Id"
-        class="lg:w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 px-2 py-1.5">
+      <input id="studentId" name="studentId" type="text" 
+        placeholder="Enter Student Id"
+        class="lg:w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg 
+        focus:ring-blue-500 focus:border-blue-500 px-2 py-1.5">
      
    <button type="button" onclick="filterResults(), openRecord('${key}')" class="w-24 shadow-sm shadow-black/50 backdrop-blur-md bg-blue-600 text-white px-2 py-0.5 rounded-lg hover:bg-blue-700 transition">Search</button>
    </div>
@@ -75,16 +76,16 @@
     <h1 class="text-center text-blue-500 text-2xl lg:text-4xl font-bold m-4">STUDENT BIO</h1>
       <div class="grid grid-cols-3 gap-2 px-2">
       <div class="flex flex-col gap-1.5">  <label class="block font-medium px-2 mb-1">Surname</label>
-        <input id="surname" type="text" placeholder="Surname"
+        <input id="surname" name="surname" type="text" placeholder="Surname"
           class="w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2" required></div>
       
        <div class="flex flex-col gap-1.5">  <label class="block font-medium px-2 mb-1">First Name</label>
-        <input id="firstName" type="text" placeholder="First Name"
+        <input id="firstName" name="firstName" type="text" placeholder="First Name"
           class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2">
           </div>
           
         <div class="flex flex-col gap-1.5">  <label class="block font-medium px-2 mb-1">Other Name</label>
-        <input id="otherName" type="text" placeholder="Other name"
+        <input id="otherName" name="otherName" type="text" placeholder="Other name"
           class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2">
           </div>
            </div>
@@ -103,7 +104,7 @@
      </div>
         
       <div class="flex flex-col gap-1.5">  <label class="block font-medium px-1.5 mb-1">Term</label>
-        <select id="editTerm" class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5" required>
+        <select id="editTerm" name="editTerm" class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5" required>
         <option value="">Select Term</option>
           <option value="First Term">First Term</option>
           <option value="Second Term">Second Term</option>
@@ -163,7 +164,7 @@ class="bg-yellow-600 py-1 lg:px-2 rounded shadow-sm">Delete row</button>
       </div>
 </footer>
 
-<script src="edit.js"></script>
-<script src="script.js"></script>
+<script src="/scripts/edit.js"></script>
+<script src="/scripts/script.js"></script>
 </body>
 </html>

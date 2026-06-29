@@ -1,31 +1,32 @@
 const user = JSON.parse(localStorage.getItem("currentUser"));
 
-if (!user || user.role !== "admin") {
-  window.location.href = "login.html";
-}
+// if (!user || user.role !== "admin") {
+//   window.location.href = "login.html";
+// }
 
- const resultStore = JSON.parse(localStorage.getItem("results")) || {};
- const container = document.getElementById("courseContainer");
- const studentRecord = document.getElementById("studentRecord");
+const container = document.getElementById("courseContainer");
+const studentRecord = document.getElementById("studentRecord");
 
-const termOrder = ["First Term","Second Term","Third Term"];
+const termOrder = ["First Term", "Second Term", "Third Term"];
 
-let editingKey = null;
-let editingStudentId = null;
+// Track the single document database ID and student metadata globally while editing
+let currentDatabaseId = null;
+let currentSession = null;
+let currentSchool = null;
 let deleteMode = false;
 
-
-
 function addRow(existingData = {}) {
-  const id = existingData.id || Date.now() + Math.random();
+  // Use simple unique identifiers for dynamic DOM management
+  const id = existingData.id || "row-" + Date.now() + Math.random().toString(36).substr(2, 4);
 
   const row = document.createElement("div");  
-  row.className = "flex justify-evenly gap-2 mb-4";
+  row.className = "flex justify-evenly gap-2 mb-4 subject-row";
   row.dataset.id = id;
 
   row.innerHTML = `
-       <div class="flex flex-col"><label class="block font-medium px-1.5 mb-1">Subject</label>
-         <select class="w-40 lg:w-70 shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 subject" required>
+    <div class="flex flex-col">
+      <label class="block font-medium px-1.5 mb-1">Subject</label>
+      <select class="w-40 lg:w-70 shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 subject" required>
         <option value="">Select Subject</option>
         <option value="Mathematics">Mathematics</option>
         <option value="English Language">English</option>
@@ -38,329 +39,223 @@ function addRow(existingData = {}) {
         <option value="Agricultural Science">Agricultural Science</option>
         <option value="Economics">Economics</option>
         <option value="Fisheries">Fisheries</option>
-      </select> </div>
-    <div class="flex flex-col"><label class="block font-medium px-1.5 mb-1">Grade</label>
-     <select class="w-25 shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 grade" required>
-       <option value="">Select Grade</option>
-         <option value="-">NIL</option>
+      </select> 
+    </div>
+    <div class="flex flex-col">
+      <label class="block font-medium px-1.5 mb-1">Grade</label>
+      <select class="w-25 shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 grade" required>
+        <option value="">Select Grade</option>
+        <option value="-">NIL</option>
         <option value="A">A</option>
         <option value="B">B</option>
         <option value="C">C</option>
         <option value="D">D</option>
         <option value="E">E</option>
         <option value="F">F</option>
-      </select>   </div>
-
-     <button type="button" class="delete-btn hidden text-red-500">X</button>
+      </select>   
+    </div>
+    <button type="button" class="delete-btn hidden text-red-500 font-bold self-end mb-2">X</button>
   `;
 
   container.appendChild(row);
 
-  if (existingData.subject)
-    row.querySelector(".subject").value = existingData.subject;
-
-  if (existingData.grade)
-    row.querySelector(".grade").value = existingData.grade;
+  if (existingData.subject) row.querySelector(".subject").value = existingData.subject;
+  if (existingData.grade) row.querySelector(".grade").value = existingData.grade;
 }
 
+// Global removal engine for visual DOM row elements
 document.addEventListener("click", (e) => {
   if (e.target.classList.contains("delete-btn")) {
     const row = e.target.closest("[data-id]");
     if (!row) return;
-
-    if (!confirm("Delete?")) return;
-
-    const id = row.dataset.id;
-
-    let data = JSON.parse(localStorage.getItem("results")) || {};
-    delete data[id];
-    localStorage.setItem("results", JSON.stringify(data));
-
-    row.remove();
+    if (confirm("Remove this subject row?")) {
+      row.remove();
+    }
   }
 });  
 
 function toggleDeleteMode() {
   deleteMode = !deleteMode;
+  const toggleBtn = document.getElementById("toggleDeleteBtn");
 
-  const toggleBtn =
-    document.getElementById("deleteModeBtn");
-
-  document
-    .querySelectorAll(".delete-btn")
-    .forEach(btn =>
-      btn.classList.toggle("hidden", !deleteMode)
-    );
+  document.querySelectorAll(".delete-btn").forEach(btn => btn.classList.toggle("hidden", !deleteMode));
 
   if (toggleBtn) {
-    toggleBtn.classList.toggle(
-      "bg-red-600",
-      deleteMode
-    );
-
-    toggleBtn.classList.toggle(
-      "text-white",
-      deleteMode
-    );
-  }
-
-  if (deleteMode) {
-    setTimeout(() => {
-      deleteMode = false;
-
-      document
-        .querySelectorAll(".delete-btn")
-        .forEach(btn =>
-          btn.classList.add("hidden")
-        );
-
-      if (toggleBtn) {
-        toggleBtn.classList.remove(
-          "bg-red-600",
-          "text-white"
-        );
-      }
-    }, 3000); 
+    toggleBtn.classList.toggle("bg-red-600", deleteMode);
+    toggleBtn.classList.toggle("text-white", deleteMode);
   }
 }
 
-function allSessionByStudent(studentId) {
+// 2. SEARCH ENGINE: PULL DATA DIRECTLY FROM MONGODB
+async function filterResults() {
+  // ✅ Rename the domestic selector variable to "inputEl" to completely avoid global naming clashes
+  const inputEl = document.getElementById("studentId");
+  
+  if (!inputEl) {
+    console.error("Could not locate the #studentId input element in the DOM tree.");
+    return;
+  }
 
-  const results = [];
+  const id = inputEl.value.trim();
+  console.log("Frontend collected ID to search:", id); // Check your browser console log!
 
-  Object.keys(resultStore).forEach(key => {
-    const store = resultStore[key];
-    const studentData = store.students?.[studentId];
+  if (!id) {
+    showToast("Enter student ID", "info");
+    return;
+  }
 
-    if (studentData) {
-      results.push({ key, studentData });
+  studentRecord.innerHTML = "";
+
+  try {
+    // Fire the query with the safely isolated variable string
+    const response = await fetch(`http://localhost:3000/users/search/profile?studentId=${id}`);
+    
+    if (!response.ok) {
+      studentRecord.innerHTML = `
+        <tr>
+          <td colspan="5" class="text-center p-4 text-red-500 font-semibold">No portfolio record found for ID: ${id}</td>
+        </tr>`;
+      return;
     }
-  });
 
-  return results;
-}
+    const dbRecord = await response.json();
+    
+    currentDatabaseId = dbRecord._id;
+    currentSession = dbRecord.session;
+    currentSchool = dbRecord.school;
 
-function updateStudent(term, data, student, session, school) {
-  const key = editingKey || `${session}-${school}`;
-  if (!resultStore[key])
-    resultStore[key] = { session, school, students: {} };
+    const rowsHtml = dbRecord.results.map(sub => `
+      <tr class="border-b text-slate-700">
+        <td class="px-2 py-1.5">${sub.subject}</td>
+        <td class="px-2 py-1.5 text-center font-bold text-blue-600">${sub.grade || "-"}</td>
+      </tr>
+    `).join("");
 
-  const students = resultStore[key].students;
-  const id = editingStudentId || student.studentId;
+    const parsedTableHtml = `
+      <div class="mb-4 p-2">
+        <div class="flex justify-between items-center px-2 mb-2">
+          <span class="text-slate-600 font-medium"><strong>${dbRecord.session} | ${dbRecord.school}</strong></span>
+          <button onclick="openEdit()" class="text-blue-600 font-bold hover:text-green-600 transition">Edit Portfolio</button>
+        </div>
+        <table class="w-full border mt-1 text-sm">
+          <thead class="bg-slate-800 text-white text-left">
+            <tr>
+              <th class="px-2 py-1">Subject</th>
+              <th class="px-2 py-1 text-center">${dbRecord.term}</th>
+            </tr>
+          </thead>
+          <tbody>${rowsHtml}</tbody>
+        </table>
+      </div>
+    `;
 
-  if (!students[id])
-    students[id] = { student, subjects: {}, terms: [] };
+    studentRecord.innerHTML = `
+      <tr><td class="block text-xl lg:text-3xl text-center font-bold p-4 text-blue-600">ACADEMIC PORTFOLIO</td></tr>
+      <tr><td class="px-4 text-sm"><strong>Name:</strong> ${(dbRecord.surname || "").toUpperCase()}, ${dbRecord.firstName || ""} ${dbRecord.otherName || ""}</td></tr>
+      <tr><td class="px-4 text-sm"><strong>Student ID:</strong> ${dbRecord.studentId}</td></tr>
+      <tr><td class="px-4 text-sm mb-4"><strong>Registered Email:</strong> ${dbRecord.email}</td></tr>
+      <tr><td class="p-2">${parsedTableHtml}</td></tr>
+    `;
 
-  const current = students[id];
-
-  current.student = { ...current.student, ...student };
-
-  if (!current.terms.includes(term)) {
-    current.terms.push(term);
-    current.terms.sort((a, b) =>
-      termOrder.indexOf(a) - termOrder.indexOf(b)
-    );
+  } catch (error) {
+    console.error(error);
+    showToast("Error establishing connection with database pipeline.", "error");
   }
+} 
 
-  const incomingIds = data.map(d => String(d.id));
+// 3. TRANSITION TO EDIT DASHBOARD LAYER
+async function openEdit() {
+  if (!currentDatabaseId) return;
+  showTab("edits");
 
-  Object.keys(current.subjects).forEach(k => {
-    if (!incomingIds.includes(String(current.subjects[k].id))) {
-      delete current.subjects[k];
+  try {
+    // Look up the clean database entry by _id
+    const response = await fetch(`http://localhost:3000/users/profile/${currentDatabaseId}`);
+    const record = await response.json();
+
+    // Fill textual static and input tags
+    surname.value = record.surname || "";
+    firstName.value = record.firstName || "";
+    otherName.value = record.otherName || "";
+    displayStudentId.textContent = record.studentId;
+    displayYear.textContent = record.session;
+    displaySchool.textContent = record.school;
+    document.getElementById("editTerm").value = record.term;
+
+    // Rebuild course selectors inside container 
+    container.innerHTML = "";
+    if (record.results && record.results.length > 0) {
+      record.results.forEach(sub => {
+        addRow({ subject: sub.subject, grade: sub.grade });
+      });
+    } else {
+      addRow();
     }
-  });
 
-  data.forEach(d => {
-    current.subjects[d.id] = {
-      ...(current.subjects[d.id] || {}),
-      id: d.id,
-      subject: d.subject,
-      [term]: d.grade
-    };
-  });
-
-  localStorage.setItem("results", JSON.stringify(resultStore));
-
-  showToast("Saved", "success");
+  } catch (err) {
+    console.error(err);
+    showToast("Error retrieving profile editor payload context.", "error");
+  }
 }
 
+// 4. PUT REQUEST: SAVE MERGED DOCUMENT RECORD TO SERVER
+async function handleSubmit() {
+  if (!currentDatabaseId) return showToast("Missing structural context key", "error");
 
-function handleSubmit() {
   const term = document.getElementById("editTerm").value;
+  if (!term) return showToast("Please select a target active term", "error");
 
-  const student = {
-    surname: surname.value,
-    firstName: firstName.value,
-    otherName: otherName.value,
-    studentId: editingStudentId || displayStudentId.textContent
-  };
-
-  if (!student.studentId) return showToast("Missing ID");
-
-  // Select only the rows that are NOT marked as deleted
-  const rows = document.querySelectorAll(
-    "#courseContainer > div:not([data-deleted='true'])"
-  );
-
-  const data = [];
+  // Read clean input lists
+  const rows = document.querySelectorAll("#courseContainer > .subject-row");
+  const nestedResults = [];
 
   for (const r of rows) {
     const subject = r.querySelector(".subject").value;
     const grade = r.querySelector(".grade").value;
 
-    if (!subject || !grade) return showToast("Fill all");
-
-    data.push({ id: r.dataset.id, subject, grade });
+    if (!subject || !grade) return showToast("Fill all subject elements or remove empty rows", "error");
+    nestedResults.push({ subject, grade });
   }
 
-  updateStudent(term, data, student);
-}
+  // Pack data to match backend schema expectation
+  const updatedPayload = {
+    surname: surname.value.trim(),
+    firstName: firstName.value.trim(),
+    otherName: otherName.value.trim(),
+    term: term,
+    results: nestedResults
+  };
 
-
-function editStudent(key, id) {
-  const s = resultStore[key]?.students?.[id];
-  if (!s) return;
-
-  editingKey = key;
-  editingStudentId = id;
-
-  surname.value = s.student.surname || "";
-  firstName.value = s.student.firstName || "";
-  otherName.value = s.student.otherName || "";
-
-  displayStudentId.textContent = id;
-  displayYear.textContent = resultStore[key].session;
-  displaySchool.textContent = resultStore[key].school;
-
-  edits.classList.remove("hidden");
-
- 
-  const latestTerm = s.terms?.length
-    ? s.terms.at(-1)
-    : termOrder[0];
-
-  document.getElementById("editTerm").value = latestTerm;
-
-  handleTermChange();
-}
-
-
-function handleTermChange() {
-  if (!editingKey || !editingStudentId) return;
-
-  const s = resultStore[editingKey]?.students?.[editingStudentId];
-  if (!s) return;
-
-  const selectedTerm = document.getElementById("editTerm").value;
-
-  container.innerHTML = "";
-
-  if (!Object.keys(s.subjects || {}).length) {
-    addRow();
-    return;
-  }
-
-  Object.values(s.subjects).forEach(sub => {
-    addRow({
-      id: sub.id,
-      subject: sub.subject,
-      grade: sub[selectedTerm] || ""
+  try {
+    const response = await fetch(`http://localhost:3000/users/profile/${currentDatabaseId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedPayload)
     });
-  });
 
-  showToast(`Editing ${selectedTerm}`, "info");
-}
-
-
-function filterResults() {
-
-  const id = studentId.value.trim();
-  if (!id) return showToast("Enter student ID", "info");
-
-  studentRecord.innerHTML = "";
-
-  const results = allSessionByStudent(id);
-
-  if (!results.length) {
-    studentRecord.innerHTML = `     <tr>
-        <td colspan="5" class="text-center p-4 text-red-500">
-          No results found
-        </td>
-      </tr>`;
-    return;
+    if (response.ok) {
+      showToast("Student profile successfully updated in database!", "success");
+      openRecord();      // Return to review mode
+      filterResults();   // Instantly update overview metrics
+    } else {
+      const errData = await response.json().catch(() => ({}));
+      showToast(errData.message || "Failed saving payload data.", "error");
+    }
+  } catch (error) {
+    console.error(error);
+    showToast("Database transmission timeout.", "error");
   }
-
-  let html = "";
-
-  results.forEach(r => {
-    html += renderTable(r.key, termOrder, r.studentData);
-  });
-const student = results[0]?.studentData?.student || {};
-  studentRecord.innerHTML = `
-  <tr><td class="block text-xl lg:text-3xl text-center font-bold p-4">ACADEMIC RECORDS</td>
-  </tr>
-  <tr><td class="px-4"><strong>Name:</strong> ${(student.surname || "").toUpperCase()}, ${student.firstName || ""} ${student.otherName || ""}</td></tr>
-  <tr><td class="px-4"><strong>ID:</strong> ${student.studentId || id}</td></tr>
-  <tr><td class="p-2">${html}</td></tr>`;
 }
 
-
-  function showTab(tab) {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-    
-    document.getElementById(tab).classList.remove('hidden');
-  }
-
-function renderTable(key, terms, studentData) {
-
-  const store = resultStore[key];
-
-  const rows = Object.values(studentData.subjects).map((sub,i)=>`
-    <tr>
-      <td class="px-2 py-1">${sub.subject}</td>
-      ${terms.map(t=>`<td class="px-2 py-1 text-center">${sub[t]||"-"}</td>`).join("")}
-    </tr>
-  `).join("");
-
-  return `
-    <div class="mb-4">
-      <div class="flex justify-between px-2">
-        <span><strong>${store.session} | ${store.school}</strong></span>
-
-        <button onclick="openEdit('${key}','${studentData.student.studentId}')"
-          class="text-blue-600 font-bold hover:text-green-600 animate-pulse">Edit</button>
-      </div>
-
-      <table colspan="5" class="w-full border mt-2">
-        <thead class="bg-gray-800 text-white">
-          <tr>
-            <th class="px-2">Subject</th>
-            ${terms.map(t=>`<th class="px-2 text-center">${t}</th>`).join("")}
-          </tr>
-        </thead>
-
-        <tbody>${rows}</tbody>
-      </table>
-
-    </div>
-  `;
+function showTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+  document.getElementById(tab).classList.remove('hidden');
 }
 
-  function showTab(tab) {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-    document.getElementById(tab).classList.remove('hidden');
-  }
-
-function openEdit(key, studentId) {
-  showTab("edits");
-  editStudent(key, studentId);
-}
-
-function openRecord(key, studentId) {
+function openRecord() {
   showTab("record");
-  editStudent(key, studentId);
 }
 
-document.getElementById("editTerm")
-  .addEventListener("change", handleTermChange); 
-  
+document.getElementById("editTerm").addEventListener("change", () => {
+  showToast(`Term changed contextually to ${document.getElementById("editTerm").value}`, "info");
+});

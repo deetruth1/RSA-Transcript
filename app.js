@@ -23,18 +23,18 @@
     // connect database
     const url = 'mongodb://localhost:27017/theTruthDb'
 
-mongoose.connect(url)
-.then(async () => {
-    console.log('Database connected successfully');
-    
-    try {
-        await mongoose.model('profile').cleanIndexes();
-        console.log('Old database indexes cleared and synchronized successfully.');
-    } catch (indexErr) {
-        console.log('Error clearing old indexes (you can ignore this if the collection is fresh):', indexErr.message);
-    }
-})
-.catch(err => console.log(err));
+    mongoose.connect(url)
+    .then(async () => {
+        console.log('Database connected successfully');
+        
+        // try {
+        //     await mongoose.model('profile').cleanIndexes();
+        //     console.log('Old database indexes cleared and synchronized successfully.');
+        // } catch (indexErr) {
+        //     console.log('Error clearing old indexes', indexErr.message);
+        // }
+    })
+    .catch(err => console.log(err));
 
 
     app.listen(port, () => {
