@@ -9,9 +9,43 @@
   <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> 
    <link rel="stylesheet" href="style.css">
+
+   <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    
+    // 1. Hard Routing Gate Guard
+    if (!currentUser || (currentUser.role !== "admin" && currentUser.role !== "user")) {
+      window.location.href = "/login";
+      return;
+    }
+
+    // 2. Role-Based Dynamic Permissions Engine
+    const adminUserPanel = document.getElementById("adminUser");
+
+    if (currentUser.role === "admin") {
+      // Show the lower administrative registry panel for real admins
+      if (adminUserPanel) adminUserPanel.style.display = "flex";
+    } else if (currentUser.role === "user") {
+      // Keep registry hidden and strip all elements with class 'admin-only'
+      if (adminUserPanel) adminUserPanel.style.display = "none";
+      
+      document.querySelectorAll(".admin-only").forEach(element => {
+        element.remove(); // Safely deletes the nodes so regular staff can't see them
+      });
+    }
+  });
+
+  // Simple global logout helper function
+  function logout() {
+    localStorage.clear();
+    window.location.href = "/login";
+  }
+</script>
 </head>
 
 <body class="scroll-smooth flex flex-col min-h-screen bg-gradient-to-bl from-blue-350 via-blue-400 to-blue-500 text-slate-900">
+
 
 <div id="bg" class="fixed inset-0 z-0 overflow-hidden">
 
@@ -134,7 +168,7 @@
 
         <!-- BOX 5 -->
         <div class="flex flex-col items-center justify-center">
-     <a href="/edit" class="group relative flex items-center justify-center p-1.5 w-full h-full lg:w-60 lg:h-32 overflow-hidden shadow-sm shadow-blue-600 bg-white rounded-2xl transition-all duration-300 hover:rounded-full hover:shadow-lg hover:scale-95">
+     <a href="/edit" class="group admin-only relative flex items-center justify-center p-1.5 w-full h-full lg:w-60 lg:h-32 overflow-hidden shadow-sm shadow-blue-600 bg-white rounded-2xl transition-all duration-300 hover:rounded-full hover:shadow-lg hover:scale-95">
   <img class="w-16 h-16 object-contain transition group-hover:scale-110"
     src="/images/svg/edit.png">
   <div class="absolute inset-0 flex items-center justify-center bg-blue-700/50 opacity-0 group-hover:opacity-100 transition"><strong class="text-white text-lg font-semibold">Edit Profile</strong></div></a>

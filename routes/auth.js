@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt')
 // const user = require('../models/users')
 const router = express.Router()
 const path = require('path')
-const users = require('../models/users')
+const User = require('../models/users')
 const profile = require('../models/profile')
 // const { log } = require('console') 
 
@@ -60,35 +60,63 @@ router.post('/adduser', async (req, res) =>{
     }
 })
 
-router.post('/login', async (req, res) =>{
+router.post('/login', async (req, res) => {
     try {
-        const email = req.body.email ? req.body.email.trim().toLowerCase():'';
-        const password = req.body.password ? req.body.password.trim():'';
+        console.log("Incoming request body:", req.body);
 
-        if (!email || !password) {
-            return res.status(400).send('Please enter both email and password')
+        // 🌟 CHANGE THIS LINE to look for 'email' matching your terminal logs!
+        const email = req.body.email || "";
+        const password = req.body.password || "";
+
+        const inputIdentity = String(email).trim();
+        const inputPassword = String(password).trim();
+
+        if (!inputIdentity || !inputPassword) {
+            return res.status(400).json({ message: "Email and Password fields are required." });
         }
 
-        const user = await users.findOne({email: email})
-        if (!user) {
-            res.status(401).send('Invalid Email or Password')
+        // 1. Check Administrative Users (theTruthDb.users)
+        const staffUser = await User.findOne({ email: inputIdentity.toLowerCase() });
+
+        if (staffUser) {
+            const match = await bcrypt.compare(inputPassword, staffUser.password);
+            if (!match) return res.status(401).json({ message: "Invalid staff password details." });
+
+            return res.status(200).json({
+                success: true,
+                user: { 
+                    role: staffUser.role || "admin", 
+                    name: staffUser.username, 
+                    email: staffUser.email 
+                }
+            });
         }
 
-        const isPasswordCorrect = await bcrypt.compare(password, user.password)
-        if(!isPasswordCorrect){
-            return res.status(401).send('Invalid Email or Password')
-        }
-
-        console.log(`User Login Validation successful! ID: ${user.id} `);
-
-        return res.redirect('/admindash')
+        // 2. Fallback: Check Student Profiles (theTruthDb.profiles)
+        // Checks if the typed email matches, and if the password matches their studentId
+        const studentUser = await Profile.findOne({ 
+            email: inputIdentity, 
+            studentId: inputPassword 
+        });
         
-    } catch (error) {
-        console.error('Critical Login Error:', error);
-        return res.status(500).send('An unexpected server error occurred during login.')
-    }
+        if (!studentUser) return res.status(401).json({ message: "No matching credentials found." });
 
-})
+        return res.status(200).json({
+            success: true,
+            user: { 
+                role: "student", 
+                studentId: studentUser.studentId, 
+                firstName: studentUser.firstName, 
+                surname: studentUser.surname, 
+                email: studentUser.email 
+            }
+        });
+
+    } catch (error) {
+        console.error("Authentication system fault:", error);
+        return res.status(500).json({ message: "Internal application authorization crash." });
+    }
+});
 
 router.post('/profile', async (req, res) => {
     try {
@@ -222,6 +250,80 @@ router.get('/dashboard/stats', async (req, res) => {
         console.error("Failed to build dashboard analytics:", error);
         return res.status(500).json({ message: "Internal server dashboard query failure." });
     }
+});
+
+// 1. CHECK IF STUDENT ALREADY HAS A PENDING REQUEST
+router.get('/requests/status', async (req, res) => {
+    try {
+        const { studentId } = req.query;
+        // Search your transcript database model for an open pending row
+        const pendingRequest = await TranscriptRequest.findOne({ studentId, status: "pending" });
+        
+        return res.status(200).json({ hasPending: !!pendingRequest });
+    } catch (error) {
+        return res.status(500).json({ message: "Error checking request status." });
+    }
+});
+
+// 2. CREATE A SUCCESSFUL PAID TRANSCRIPT ENTRY
+router.post('/requests/create', async (req, res) => {
+    try {
+        const { studentId, terms, paymentStatus, paymentReference } = req.body;
+        
+        const newRequest = new TranscriptRequest({
+            studentId,
+            terms,
+            paymentStatus,
+            paymentReference,
+            status: "pending",
+            createdAt: new Date()
+        });
+
+        await newRequest.save();
+        return res.status(201).json({ success: true, message: "Transcript request successfully saved." });
+    } catch (error) {
+        return res.status(500).json({ message: "Failed to record transaction payload." });
+    }
+});
+
+// 3. FETCH ALL REQUEST HISTORIES FOR A LOGGED-IN STUDENT
+router.get('/requests/list', async (req, res) => {
+    try {
+        const { studentId } = req.query;
+        const history = await TranscriptRequest.find({ studentId }).sort({ createdAt: -1 });
+        
+        return res.status(200).json(history);
+    } catch (error) {
+        return res.status(500).json({ message: "Error loading request log histories." });
+    }
+});
+
+router.post('/register', async (req, res) => {
+  try {
+    const { username, email, password, role } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Required fields are missing." });
+    }
+
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // 🌟 THE FIX: Map 'username' from the form into the 'name' field your database expects!
+    const newUser = new User({
+      name: username || "Staff Member", // Changed from username: username
+      email: email.toLowerCase(),
+      password: hashedPassword,
+      role: role || "user"
+    });
+
+    await newUser.save();
+    return res.status(201).json({ message: "User registered successfully!" });
+
+  } catch (error) {
+    console.error("Registration route error:", error);
+    return res.status(500).json({ message: "Internal server registry error." });
+  }
 });
 
 module.exports = router

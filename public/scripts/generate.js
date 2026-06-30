@@ -1,3 +1,43 @@
+async function searchStudentProfile() {
+  const searchInput = document.getElementById("searchStudentId");
+  if (!searchInput) return;
+
+  const studentId = searchInput.value.trim();
+  if (!studentId) {
+    showToast("Please enter a Student ID first", "error");
+    return;
+  }
+
+  try {
+    // 1. Fetch data from your MongoDB profiles collection
+    const response = await fetch(`http://localhost:3000/users/search/profile?studentId=${studentId}`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      showToast(data.message || "Student profile not found in database", "error");
+      return;
+    }
+
+    showToast("Student records loaded successfully", "success");
+
+    // 2. Automatically fill your form inputs with the data found in MongoDB
+    // (Make sure these IDs match the input fields on your edit page!)
+    if (document.getElementById("firstName")) document.getElementById("firstName").value = data.firstName || "";
+    if (document.getElementById("surname")) document.getElementById("surname").value = data.surname || "";
+    if (document.getElementById("otherName")) document.getElementById("otherName").value = data.otherName || "";
+    if (document.getElementById("email")) document.getElementById("email").value = data.email || "";
+
+    // If your page renders a performance/grades table, call it here:
+    if (typeof renderPerformanceTable === "function") {
+      renderPerformanceTable(data);
+    }
+
+  } catch (error) {
+    console.error("Search error:", error);
+    showToast("Failed to connect to server backend", "error");
+  }
+}
+
 const user = JSON.parse(localStorage.getItem("currentUser"));
 
 if (!user || user.role === "student") {

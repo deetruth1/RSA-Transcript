@@ -3,146 +3,132 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>admindash</title>
+  <title>Admin Dashboard</title>
 
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> 
-   <link rel="stylesheet" href="/css/style.css">
-   <script>
-      //   document.addEventListener("DOMContentLoaded", () => {
-      //   const currentUser = JSON.parse(
-      //     localStorage.getItem("currentUser")  );
-      //   if (currentUser?.role !== "admin") {
-      //   window.location.href = "/login";
-      //   }
-      // });
-  </script>
+  <link rel="stylesheet" href="/css/style.css">
+  
+  <!-- <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      // Block anyone who isn't explicitly an 'admin' or staff 'user' from this page
+      if (!currentUser || (currentUser.role !== "admin" && currentUser.role !== "user")) {
+        window.location.href = "/login";
+      }
+    });
+  </script> -->
 </head>
 
-<body class="scroll-smooth flex flex-col min-h-screen bg-gradient-to-bl from-blue-350 via-blue-400 to-blue-500 text-slate-900">
+<body class="scroll-smooth flex flex-col min-h-screen bg-gradient-to-bl from-blue-300 via-blue-400 to-blue-500 text-slate-900">
 
-<div id="bg" class="fixed inset-0 z-0 overflow-hidden">
-
-  <!-- Gradient Layer (animated shift) -->
-  <div class="absolute inset-0 bg-white/20 backdrop-blur-lg animate-[bgshift_12s_ease-in-out_infinite]"></div>
-
-  <!-- Soft glow blobs -->
+<div id="bg" class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+  <div class="absolute inset-0 bg-white/20 backdrop-blur-lg"></div>
   <div class="absolute -top-40 -left-40 w-[500px] h-[500px] bg-blue-400/30 blur-3xl rounded-full animate-pulse"></div>
   <div class="absolute bottom-0 -right-40 w-[600px] h-[600px] bg-indigo-400/20 blur-3xl rounded-full animate-pulse"></div>
-
-  <!-- Floating particles -->
-  <div class="particles absolute inset-0"></div>
 </div>
 
-<nav class="md:hidden fixed top-0 w-full z-40">
-  <div class="mx-auto flex justify-between items-center px-6 py-2 text-2xl border-b border-slate-800 bg-slate-900/90 backdrop-blur-md text-white">
-    <h1 class="heading">LOGO</h1>
-     <div class="flex items-center gap-4">
-    <button id="menuBtn" class="px-2">☰</button>
-  </div>
+<nav class="md:hidden fixed top-0 w-full z-40 bg-slate-900/90 backdrop-blur-md text-white border-b border-slate-800">
+  <div class="mx-auto flex justify-between items-center px-6 py-3 text-xl">
+    <h1 class="font-bold tracking-wider">LOGO</h1>
+    <button id="menuBtn" class="px-2 focus:outline-none">☰</button>
   </div>
 
-  <!-- Mobile Menu -->
-  <div id="mobileMenu" class="hidden fixed right-0 w-24 lg:w-40 shadow-md bg-white/30 backdrop-blur-md shadow-blue-900 rounded-b-lg text-center lg:text-4xl py-4 space-y-4 text-xl">
-     <a href="admindash.html" class="block text-md hover:text-white">Home</a>
-    <a href="profile.html" class="admin-only block text-md hover:text-white">Add</a>
-    <a href="edit.html" class="admin-only block text-md hover:text-white">Edit</a>
-    <a href="generate.html" class="block text-md hover:text-white">Generate</a>
-    <a href="request.html" class="block text-md hover:text-white">Requests</a>
-    <a href="sent.html" class="block text-md hover:text-white">Sent</a>
-    <button onclick="logout()" class="text-md text-red-700 hover:text-white">Sign Out</button>   </div>
+  <div id="mobileMenu" class="hidden absolute right-4 top-14 w-48 shadow-2xl bg-white/95 text-slate-800 backdrop-blur-md rounded-xl py-4 flex flex-col gap-2 font-medium">
+    <a href="admindash.html" class="block px-4 py-1.5 hover:text-blue-600">Home</a>
+    <a href="profile.html" class="block px-4 py-1.5 hover:text-blue-600">Add Student</a>
+    <a href="edit.html" class="block px-4 py-1.5 hover:text-blue-600">Edit Records</a>
+    <a href="generate.html" class="block px-4 py-1.5 hover:text-blue-600">Generate Transcript</a>
+    <a href="request.html" class="block px-4 py-1.5 hover:text-blue-600">Requests</a>
+    <a href="sent.html" class="block px-4 py-1.5 hover:text-blue-600">Sent Logs</a>
+    <hr class="border-slate-100 my-1">
+    <button onclick="logout()" class="text-left px-4 py-1.5 text-red-600 font-bold hover:bg-slate-50">Sign Out</button> 
+  </div>
 </nav>
 
-<div class="relative flex overflow-hidden">
-  <!-- ================= SIDEBAR ================= -->
- <aside class="hidden md:flex md:w-64 flex-col fixed top-0 left-0 h-full bg-slate-950 p-5">
+<div class="relative flex flex-1 overflow-hidden min-h-screen">
+  
+  <aside class="hidden md:flex md:w-64 flex-col fixed top-0 left-0 h-full bg-slate-950 p-5 z-30 justify-between">
+    <div>
+      <h2 class="text-xl lg:text-2xl text-white font-black my-8 text-center tracking-wide">
+        🎓 CONTROL PANEL
+      </h2>
 
-    <h2 class="text-2xl lg:text-5xl text-white font-bold my-10">🎓 ADMIN</h2>
+      <nav class="flex flex-col gap-1.5 text-slate-300 font-medium text-sm lg:text-base">
+        <a href="admindash.html" class="px-4 py-2 rounded-xl bg-white/10 text-white font-bold transition">Manage Staff</a>
+        <a href="profile.html" class="px-4 py-2 rounded-xl hover:bg-white/5 hover:text-white transition">Add Student</a>
+        <a href="edit.html" class="px-4 py-2 rounded-xl hover:bg-white/5 hover:text-white transition">Edit Grades</a>
+        <a href="generate.html" class="px-4 py-2 rounded-xl hover:bg-white/5 hover:text-white transition">Transcripts</a>
+        <a href="request.html" class="px-4 py-2 rounded-xl flex justify-between items-center hover:bg-white/5 hover:text-white transition">
+          <span>Incoming Requests</span>
+          <span id="notificationDot" class="hidden bg-amber-500 text-slate-950 text-xs font-black px-2 py-0.5 rounded-full">0</span>
+        </a>
+        <a href="sent.html" class="px-4 py-2 rounded-xl hover:bg-white/5 hover:text-white transition">Dispatched Logs</a>
+      </nav>
+    </div>
 
-  <nav class="space-y-4 text-white text-2xl">
-    <img src="/images/svg/img3.png" class="w-48 h-48 block absolute bottom-90 transition-all duration-300 hover:scale-100 animate-pulse">
-    <button onclick="logout()" class="block absolute bottom-20 bg-white justify-self-center text-sm rounded-lg px-4 py-2 text-red-900 hover:text-white">Sign Out</button>  
-    </nav>
-
+    <div class="mb-6 w-full px-2">
+      <button onclick="logout()" class="w-full bg-white text-slate-900 font-bold text-sm rounded-xl py-2.5 hover:bg-red-600 hover:text-white transition shadow-md">Sign Out</button>  
+    </div>
   </aside>
 
-  <!-- ================= MAIN ================= -->
- <main class="relative flex-1 mt-20 md:ml-64 md:overflow-y-auto mb-10">
-<section class="relative px-4 lg:px-36 text-sm lg:text-xl">
-  <div class="shadow-blue-600 bg-white/80 backdrop-blur-2xl rounded-2xl shadow-sm p-4 mt-10">
-  <h2 class="text-2xl lg:text-4xl font-bold text-center mb-6">Add Admin Users</h2>
+  <main class="relative flex-1 mt-20 md:mt-0 md:ml-64 p-4 lg:p-12 z-10 flex flex-col justify-start">
+    <section class="relative max-w-3xl mx-auto w-full text-sm lg:text-base">
+      
+      <div class="shadow-xl bg-white/90 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-white/40">
+        <h2 class="text-2xl lg:text-3xl font-black text-slate-800 text-center mb-1">Create Staff Registry</h2>
+        <p class="text-xs text-slate-400 text-center mb-6">Authorize secondary users to view requests & manage portfolios</p>
 
-    <form action="/users/adduser" id="adduser" method="post" class="space-y-4">
-        <div>
-            <label for="text" class="block font-medium">Username</label>
-            <input id="fullName" name="username" type="text" required
-              class="mt-1 w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2" placeholder="Enter Username"/>
-          </div>
+        <form onsubmit="event.preventDefault(); createUser();" id="adduser" class="space-y-4 text-slate-700">
           <div>
-            <label for="email" class="block font-medium">Email</label>
-            <input id="email" name="email" type="email" required
-              class="mt-1 w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2" placeholder="Enter user email"/>
+            <label class="block font-semibold text-xs uppercase tracking-wider text-slate-500 mb-1">Full Name / Identifier</label>
+            <input id="fullName" type="text" required class="w-full bg-slate-50 border-slate-200 rounded-xl p-2.5 font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white" placeholder="e.g. Registrar Smith"/>
           </div>
+          
           <div>
-            <label for="password" class="block font-medium">Password</label>
-            <input id="password" name="password" type="password" required
-              class="mt-1 w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2" placeholder="Enter your password"/>
+            <label class="block font-semibold text-xs uppercase tracking-wider text-slate-500 mb-1">Operational Email Address</label>
+            <input id="email" type="email" required class="w-full bg-slate-50 border-slate-200 rounded-xl p-2.5 font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white" placeholder="staff@school.com"/>
           </div>
-  
-       <div>
-     <label for="confirm password" class="block font-medium">Confirm Password</label>
-    <input id="confirmPassword" name="confirmPassword" type="password" required class="mt-1 w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2" placeholder="Enter your password"/>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block font-semibold text-xs uppercase tracking-wider text-slate-500 mb-1">Secure Password</label>
+              <input id="password" type="password" required class="w-full bg-slate-50 border-slate-200 rounded-xl p-2.5 font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white" placeholder="••••••••"/>
+            </div>
+            <div>
+              <label class="block font-semibold text-xs uppercase tracking-wider text-slate-500 mb-1">Confirm Password</label>
+              <input id="confirmPassword" type="password" required class="w-full bg-slate-50 border-slate-200 rounded-xl p-2.5 font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white" placeholder="••••••••"/>
+            </div>
           </div>
-    <select id="role" class="hidden">
- <option value="user">User</option>
-</select>
-    <button type="submit" 
-      class="w-full shadow-sm shadow-blue-600 backdrop-blur-md bg-blue-600 
-      text-white mt-4 py-2 px-4 rounded-lg hover:bg-blue-700 transition">Submit
-    </button>
-</form>
-</div>
-</section>
-</main>
-</div>
- 
- 
-  
-  <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
-<footer class="relative bg-slate-950 p-4 mt-auto md:ml-64 lg:px-8 text-slate-300 text-xs lg:text-md">
 
-     <div class="flex flex-col md:flex-row justify-between items-center gap-2">  <div class="flex justify-center gap-1 md:text-left">&copy;<span id="year"></span><p>School Name. All rights reserved.</p></div>
+          <input type="hidden" id="role" value="user">
 
-        <div class="flex flex-wrap justify-center gap-2">
-          <a href="privacy-policy.html" class="hover:text-blue-400 transition">
-            Privacy Policy
-          </a>
-
-          <a href="terms.html" class="hover:text-blue-400 transition">
-            Terms & Conditions
-          </a>
-
-          <a href="cookies.html" class="hover:text-blue-400 transition">
-            Cookie Policy
-          </a>
-
-          <a href="accessibility.html" class="hover:text-blue-400 transition">
-            Accessibility
-          </a>
-
-          <a href="faq.html" class="hover:text-blue-400 transition">
-            FAQ
-          </a>
-        </div>
-
+          <button type="submit" class="w-full bg-blue-600 text-white font-bold mt-4 py-3 px-4 rounded-xl hover:bg-blue-700 active:scale-[0.99] transition shadow-lg shadow-blue-600/20">
+            Provision Account Access
+          </button>
+        </form>
       </div>
+
+      <div class="mt-8 bg-white/90 backdrop-blur-md rounded-2xl p-6 border border-white/40 shadow-xl">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+          <h3 class="font-bold text-slate-800 text-lg">Active Sub-Staff Profiles</h3>
+          <input type="text" id="searchUser" oninput="renderUsers()" placeholder="Filter accounts..." class="text-xs bg-slate-50 border-slate-200 rounded-lg p-2 max-w-xs focus:ring-1 focus:ring-blue-500">
+        </div>
+        <div class="overflow-x-auto w-full">
+          <table id="usersTable" class="w-full border-collapse text-left text-sm divide-y divide-slate-100">
+            </table>
+        </div>
+      </div>
+
+    </section>
+  </main>
+</div>
+  
+<div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+<footer class="relative bg-slate-950 p-4 text-center text-slate-400 text-xs border-t border-slate-800">
+  <p>&copy; 2026 School Name. All rights reserved.</p>
 </footer>
   
-  <script src="/scripts/axios.min.js"></script>
-  <script src="/scripts/dashboard.js"></script>
-   <!-- <script src="/scripts/script.js"></script>  -->
-   
+<script src="/scripts/dashboard.js"></script>
 </body>
 </html>
-
