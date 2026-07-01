@@ -51,9 +51,6 @@ function showToast(message, type = "error") {
   }, 3000);
 }
 
-const LOGIN_KEY = "currentUser";
-
-// unified login controller
 async function login() {
   const emailField = document.getElementById("loginEmail") || document.getElementById("email");
   const passwordField = document.getElementById("loginPassword") || document.getElementById("password");
@@ -66,45 +63,43 @@ async function login() {
   const identity = emailField.value.trim();
   const password = passwordField.value.trim();
     
-  // 2. Clear validation block check
   if (!identity || !password) {
-    showToast("Email and Password fields are required.", "error");
+    showToast("Email and Credentials are required.", "error");
     return;
   }
 
   try {
-    // 3. Send payload using the exact keys your backend expects
     const response = await fetch('http://localhost:3000/users/login', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: identity, password: password })
+      body: JSON.stringify({ email: identity, password: password }) 
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-      showToast(data.message || "Invalid Email or Password", "error");
+      showToast(data.message || "Invalid Credentials", "error");
       return;
     }
 
-    //Save session context token securely
     localStorage.setItem("currentUser", JSON.stringify(data.user));
     showToast("Sign in successful!", "success");
 
-    //Reroute user based on backend assigned structural role
     setTimeout(() => {
       if (data.user.role === "admin" || data.user.role === "user") {
         window.location.href = "/admindash";
       } else if (data.user.role === "student") {
-        window.location.href = "student.html";
+        window.location.href = "/student"; 
       }
     }, 200);
 
   } catch (error) {
     console.error(error);
-    showToast("Server network timeout link error.", "error");
+    showToast("Server network error.", "error");
   }
 }
+
+const LOGIN_KEY = "currentUser";
 
 //sub staff user
 async function createUser() {
@@ -155,42 +150,42 @@ async function createUser() {
 }
 
 
-async function renderUsers() {
-  const container = document.getElementById("usersTable");
-  if (!container) return;
+// async function renderUsers() {
+//   const container = document.getElementById("usersTable");
+//   if (!container) return;
 
-  const searchValue = document.getElementById("searchUser")?.value.toLowerCase().trim() || "";
+//   const searchValue = document.getElementById("searchUser")?.value.toLowerCase().trim() || "";
 
-  try {
-    // payload list directly
-    const response = await fetch(`http://localhost:3000/users/list/staff?search=${encodeURIComponent(searchValue)}`);
-    if (!response.ok) return;
+//   try {
+//     // payload list directly
+//     const response = await fetch(`/users/all-users`);
+//     if (!response.ok) return;
 
-    const staffUsers = await response.json();
+//     const staffUsers = await response.json();
 
-    if (staffUsers.length === 0) {
-      container.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-400 italic">No operational sub-staff accounts found matching index keys.</td></tr>`;
-      return;
-    }
+//     if (staffUsers.length === 0) {
+//       container.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-400 italic">No operational sub-staff accounts found matching index keys.</td></tr>`;
+//       return;
+//     }
 
-    container.innerHTML = `
-      <tbody>
-        ${staffUsers.map(staff => `
-          <tr class="border-b text-slate-700 hover:bg-slate-50 transition">
-            <td class="p-3 text-center font-medium">${staff.name || "-"}</td>
-            <td class="p-3 text-center">${staff.email || "-"}</td>
-            <td class="p-3 text-center text-xs font-bold text-indigo-600 uppercase tracking-wide">${staff.role}</td>
-            <td class="p-3 text-center text-red-600 font-bold">
-              <button onclick="deleteUser('${staff._id}')" class="hover:underline focus:outline-none">Delete Account</button>
-            </td>
-          </tr>
-        `).join("")}
-      </tbody>
-    `;
-  } catch (error) {
-    console.error("Error drawing dynamic staff rows lists:", error);
-  }
-}
+//     container.innerHTML = `
+//       <tbody>
+//         ${staffUsers.map(staff => `
+//           <tr class="border-b text-slate-700 hover:bg-slate-50 transition">
+//             <td class="p-3 text-center font-medium">${staff.name || "-"}</td>
+//             <td class="p-3 text-center">${staff.email || "-"}</td>
+//             <td class="p-3 text-center text-xs font-bold text-indigo-600 uppercase tracking-wide">${staff.role}</td>
+//             <td class="p-3 text-center text-red-600 font-bold">
+//               <button onclick="deleteUser('${staff._id}')" class="hover:underline focus:outline-none">Delete Account</button>
+//             </td>
+//           </tr>
+//         `).join("")}
+//       </tbody>
+//     `;
+//   } catch (error) {
+//     console.error("Error drawing dynamic staff rows lists:", error);
+//   }
+// }
 
 async function deleteUser(mongoObjectId) {
   if (!confirm("Are you absolutely sure you want to permanently strip operational clearance and delete this staff user account from the registry?")) return;
@@ -202,7 +197,16 @@ async function deleteUser(mongoObjectId) {
 
     if (response.ok) {
       showToast("Clearance dropped. Account terminated successfully.", "success");
+      
+      // 🌟 ADD THIS LINE: Tell dashboard.js to empty its memory cache 
+      // so it's forced to fetch a fresh list from MongoDB!
+      if (typeof allUsersList !== 'undefined') {
+        allUsersList = []; 
+      }
+
+      // Trigger the table update
       renderUsers();
+      
     } else {
       showToast("Failed to isolate targeted document schema parameters.", "error");
     }
@@ -241,10 +245,10 @@ function logout() {
 }
 
 // Hook lifecycle loaders
-document.addEventListener("DOMContentLoaded", () => {
-  renderUsers();
-  updateNotificationDot();
-});
+// document.addEventListener("DOMContentLoaded", () => {
+//   renderUsers();
+//   updateNotificationDot();
+// });
 
 // =========================================================================
 // INTERACTIVE DASHBOARD DESIGN CAROUSEL MATRICES

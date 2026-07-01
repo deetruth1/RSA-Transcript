@@ -1,10 +1,12 @@
-// --- SESSION AUTHORIZATION ENFORCEMENT ---
+// At the very top of scripts/student.js:
 const user = JSON.parse(localStorage.getItem("currentUser"));
 
-if (!user || !user.studentId) {
+if (!user || (user.role !== "student" && user.role !== "admin")) {
   window.location.href = "/login";
 }
 
+// 🌟 Target the exact studentId string passed by your updated login session:
+const studentLookupKey = user.studentId || user.email;
 // Global reference targets
 const studentRecord = document.getElementById("studentRecord");
 const defaultTerms = ["First Term", "Second Term", "Third Term"];
@@ -15,16 +17,37 @@ document.getElementById("menuBtn")?.addEventListener("click", () => {
   if (menu) menu.classList.toggle("hidden");
 });
 
-function showTab(tabId) {
-  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-  document.getElementById(tabId)?.classList.remove('hidden');
-  document.getElementById("mobileMenu")?.classList.add("hidden"); // Auto-collapse menu
-}
+// function showTab(tabId) {
+//   document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+//   document.getElementById(tabId)?.classList.remove('hidden');
+//   document.getElementById("mobileMenu")?.classList.add("hidden"); // Auto-collapse menu
+// }
 
 // Navigation Shortlinks
-function openBio() { showTab("bio"); }
-function openResult() { showTab("result"); }
-function openRequest() { showTab("requests"); }
+// Add or verify these navigation handlers at the top level of student.js:
+
+function openBio() { 
+  showTab("bio"); 
+}
+
+function openResult() { 
+  showTab("result"); 
+}
+
+function openRequest() { 
+  showTab("requests"); 
+}
+
+function showTab(tabId) {
+  // Hide all sections with the tab-content class
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+  
+  // Show the requested section element
+  document.getElementById(tabId)?.classList.remove('hidden');
+  
+  // Close the mobile responsive nav drawer automatically
+  document.getElementById("mobileMenu")?.classList.add("hidden"); 
+}
 
 // --- ENGINE INITIALIZER ---
 document.addEventListener("DOMContentLoaded", () => {
@@ -37,77 +60,97 @@ document.addEventListener("DOMContentLoaded", () => {
 // 1. BIO-DATA & ACADEMIC DATA AUTO-POPULATION PIPELINE
 // =========================================================
 async function autoPopulateStudentProfile() {
-  if (!user?.studentId) return;
+  // Use the available user session details to determine what to search for
+  const lookupKey = user?.studentId || user?.username || user?.email;
+  if (!lookupKey) return;
 
   try {
-    // Call the search endpoint we created on your Express router
-    const response = await fetch(`http://localhost:3000/users/search/profile?studentId=${user.studentId}`);
+    // Call your working backend router path
+    const response = await fetch(`http://localhost:3000/users/search/profile?studentId=${lookupKey}`);
     
     if (!response.ok) {
       if (studentRecord) {
         studentRecord.innerHTML = `
           <div class="text-center p-6 text-red-500 font-semibold bg-white rounded-xl shadow">
-            ⚠️ No academic profile found in the database for ID: ${user.studentId}
+            ⚠️ No academic profile found in the database for identity: ${lookupKey}
           </div>`;
       }
       return;
     }
 
     const dbRecord = await response.json();
+    console.log("Profile successfully loaded from MongoDB:", dbRecord);
 
-    // Fill personal bio-data profile input text tokens
-    document.getElementById("surname").value = dbRecord.surname || "-";
-    document.getElementById("firstName").value = dbRecord.firstName || "-";
-    document.getElementById("otherName").value = dbRecord.otherName || "-";
-    document.getElementById("email").value = dbRecord.email || "-";
-
-    document.getElementById("displayStudentId").textContent = dbRecord.studentId || "-";
-    document.getElementById("displayYear").value = dbRecord.session || "-";
-    document.getElementById("Level").value = dbRecord.school || "-";
+    // 🌟 Safely map to the correct element IDs present in your student.html layout
+    if (document.getElementById("surname")) document.getElementById("surname").value = dbRecord.surname || "-";
+    if (document.getElementById("firstName")) document.getElementById("firstName").value = dbRecord.firstName || "-";
+    if (document.getElementById("otherName")) document.getElementById("otherName").value = dbRecord.otherName || "-";
+    if (document.getElementById("email")) document.getElementById("email").value = dbRecord.email || "-";
+    if (document.getElementById("studentId")) document.getElementById("studentId").value = dbRecord.studentId || "-";
+    if (document.getElementById("Year")) document.getElementById("Year").value = dbRecord.session || dbRecord.year || "-";
+    if (document.getElementById("Level")) document.getElementById("Level").value = dbRecord.school || dbRecord.level || "-";
 
     // Build academic sheet component elements
-    renderPerformanceTable(dbRecord);
+  renderPerformanceTable(dbRecord);
 
   } catch (error) {
     console.error("Critical error mapping profile document states:", error);
   }
 }
-
+// =========================================================
+// 1b. DYNAMIC PERFORMANCE RESULTS TABLE RENDERER
+// =========================================================
 function renderPerformanceTable(dbRecord) {
-  if (!studentRecord) return;
-  studentRecord.innerHTML = "";
+  // Find your <div id="studentRecord"></div> container from student.html
+  const resultContainer = document.getElementById("studentRecord");
+  if (!resultContainer) return;
+  
+  resultContainer.innerHTML = "";
 
-  if (!dbRecord.results || dbRecord.results.length === 0) {
-    studentRecord.innerHTML = `<p class="text-slate-400 italic text-center py-6 text-sm">No grades logged for this terminal identity context.</p>`;
+  // Extract the results array or handle fallback properties cleanly
+  const gradesArray = dbRecord.results || dbRecord.Grades || [];
+
+  if (gradesArray.length === 0) {
+    resultContainer.innerHTML = `
+      <div class="bg-white rounded-xl p-6 text-center border border-slate-200 shadow-sm">
+        <p class="text-slate-400 italic text-sm">No terminal grades logged for this student identity record yet.</p>
+      </div>`;
     return;
   }
 
-  // Parse nested array schemas safely directly into row collections
-  const rowsHtml = dbRecord.results.map(item => `
-    <tr class="border-b text-slate-700 hover:bg-slate-50 transition text-sm">
-      <td class="px-4 py-3 font-semibold text-slate-800">${item.subject}</td>
-      <td class="px-4 py-3 text-center font-bold text-blue-600">${item.grade || "-"}</td>
+  // Loop through your subjects and grades to compile the table rows
+  const rowsHtml = gradesArray.map(item => `
+    <tr class="border-b border-slate-100 text-slate-700 hover:bg-slate-50 transition text-sm">
+      <td class="px-6 py-3.5 font-semibold text-slate-800">${item.subject || item.Subject || "-"}</td>
+      <td class="px-6 py-3.5 text-center font-bold text-blue-600">${item.grade || item.Grade || "-"}</td>
     </tr>
   `).join("");
 
-  studentRecord.innerHTML = `
-    <div class="mb-4 bg-white rounded-xl border border-slate-100 p-2">
-      <div class="flex justify-between items-center px-2 mb-3">
-        <span class="text-sm font-bold text-slate-500">SESSION: ${dbRecord.session} | LEVEL: ${dbRecord.school}</span>
-        <span class="text-xs bg-indigo-100 text-indigo-800 font-bold px-2 py-0.5 rounded-md border border-indigo-200">${dbRecord.term}</span>
+  // Inject the fully built table component directly into the container element
+  resultContainer.innerHTML = `
+    <div class="mb-4 bg-white rounded-xl border border-slate-200 p-4 shadow-sm max-w-4xl mx-auto">
+      <div class="flex flex-wrap justify-between items-center px-2 mb-4 gap-2">
+        <span class="text-xs font-bold text-slate-500 tracking-wide uppercase">
+          SESSION: ${dbRecord.session || dbRecord.year || "-"} | LEVEL: ${dbRecord.school || dbRecord.level || "-"}
+        </span>
+        <span class="text-xs bg-indigo-100 text-indigo-800 font-bold px-2.5 py-1 rounded-md border border-indigo-200">
+          ${dbRecord.term || "Academic Report Card"}
+        </span>
       </div>
 
-      <table class="w-full border text-left rounded-lg overflow-hidden">
-        <thead class="bg-slate-900 text-white text-xs uppercase tracking-wider">
-          <tr>
-            <th class="px-4 py-2.5">Subject Name</th>
-            <th class="px-4 py-2.5 text-center">Grade</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-100">
-          ${rowsHtml}
-        </tbody>
-      </table>
+      <div class="overflow-hidden border border-slate-100 rounded-lg">
+        <table class="w-full text-left border-collapse">
+          <thead class="bg-slate-950 text-white text-xs uppercase tracking-wider">
+            <tr>
+              <th class="px-6 py-3 font-semibold">Subject Name</th>
+              <th class="px-6 py-3 text-center font-semibold">Grade</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 bg-white">
+            ${rowsHtml}
+          </tbody>
+        </table>
+      </div>
     </div>
   `;
 }
@@ -132,7 +175,7 @@ async function submitStudentRequest() {
     localStorage.setItem("pendingTranscriptRequest", JSON.stringify({ studentId: user.studentId, terms: defaultTerms }));
 
     // Send context flow over to authorization gateway page
-    window.location.href = "payment.html";
+    window.location.href = "/payment";
 
   } catch (error) {
     console.error("Request generation runtime failure:", error);

@@ -3,7 +3,9 @@ const bcrypt = require('bcrypt')
 // const user = require('../models/users')
 const router = express.Router()
 const path = require('path')
+const mongoose = require('mongoose')
 const User = require('../models/users')
+const Transcript = require('../models/Request')
 const profile = require('../models/profile')
 // const { log } = require('console') 
 
@@ -61,62 +63,62 @@ router.post('/adduser', async (req, res) =>{
 })
 
 router.post('/login', async (req, res) => {
-    try {
-        console.log("Incoming request body:", req.body);
-
-        // 🌟 CHANGE THIS LINE to look for 'email' matching your terminal logs!
-        const email = req.body.email || "";
-        const password = req.body.password || "";
-
-        const inputIdentity = String(email).trim();
-        const inputPassword = String(password).trim();
-
-        if (!inputIdentity || !inputPassword) {
-            return res.status(400).json({ message: "Email and Password fields are required." });
-        }
-
-        // 1. Check Administrative Users (theTruthDb.users)
-        const staffUser = await User.findOne({ email: inputIdentity.toLowerCase() });
-
-        if (staffUser) {
-            const match = await bcrypt.compare(inputPassword, staffUser.password);
-            if (!match) return res.status(401).json({ message: "Invalid staff password details." });
-
-            return res.status(200).json({
-                success: true,
-                user: { 
-                    role: staffUser.role || "admin", 
-                    name: staffUser.username, 
-                    email: staffUser.email 
-                }
-            });
-        }
-
-        // 2. Fallback: Check Student Profiles (theTruthDb.profiles)
-        // Checks if the typed email matches, and if the password matches their studentId
-        const studentUser = await Profile.findOne({ 
-            email: inputIdentity, 
-            studentId: inputPassword 
-        });
-        
-        if (!studentUser) return res.status(401).json({ message: "No matching credentials found." });
-
-        return res.status(200).json({
-            success: true,
-            user: { 
-                role: "student", 
-                studentId: studentUser.studentId, 
-                firstName: studentUser.firstName, 
-                surname: studentUser.surname, 
-                email: studentUser.email 
-            }
-        });
-
-    } catch (error) {
-        console.error("Authentication system fault:", error);
-        return res.status(500).json({ message: "Internal application authorization crash." });
+  try {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({ message: "Both credentials are required." });
     }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const credentialInput = password.trim(); // This contains either the password OR Student ID
+
+    // ─── STRATEGY 1: CHECK FOR ADMIN / STAFF (Email + Password) ───
+    let user = await User.findOne({ email: cleanEmail });
+    
+    if (user) {
+      // If found in users collection, authenticate using standard bcrypt matching
+      const isMatch = await bcrypt.compare(credentialInput, user.password);
+      if (isMatch) {
+        return res.status(200).json({
+          message: "Sign in successful!",
+          user: {
+            _id: user._id,
+            username: user.username || user.name,
+            email: user.email,
+            role: user.role || "user"
+          }
+        });
+      }
+    }
+
+    const studentProfile = await mongoose.connection.collection('profiles').findOne({
+      email: cleanEmail,
+      studentId: credentialInput 
+    });
+
+    if (studentProfile) {
+      return res.status(200).json({
+        message: "Student sign in successful!",
+        user: {
+          _id: studentProfile._id,
+          username: `${studentProfile.firstName || ''} ${studentProfile.surname || ''}`.trim() || "Student",
+          email: studentProfile.email,
+          studentId: studentProfile.studentId,
+          role: "student" // Hardcode the client routing flag to student
+        }
+      });
+    }
+
+    // If neither strategy handles the transaction parameters, deny access
+    return res.status(401).json({ message: "Invalid Email, Password, or Student ID." });
+
+  } catch (error) {
+    console.error("Unified login handler failure:", error);
+    return res.status(500).json({ message: "Internal authentication system error." });
+  }
 });
+
 
 router.post('/profile', async (req, res) => {
     try {
@@ -309,9 +311,9 @@ router.post('/register', async (req, res) => {
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // 🌟 THE FIX: Map 'username' from the form into the 'name' field your database expects!
     const newUser = new User({
-      name: username || "Staff Member", // Changed from username: username
+      name: username || "Staff Member",     
+      username: username || "Staff Member",
       email: email.toLowerCase(),
       password: hashedPassword,
       role: role || "user"
@@ -325,5 +327,94 @@ router.post('/register', async (req, res) => {
     return res.status(500).json({ message: "Internal server registry error." });
   }
 });
+
+// ================= FETCH ALL REGISTERED USERS =================
+router.get('/all-users', async (req, res) => {
+  try {
+    // Fetch all users from the database, leaving out the password for security
+    const users = await User.find({}, '-password'); 
+    
+    // Send the list of users back to the frontend
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error fetching users from database:", error);
+    res.status(500).json({ message: "Internal server error fetching users." });
+  }
+});
+
+// ================= DELETE A USER BY ID =================
+router.delete('/staff/:id', async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Use Mongoose to find and remove the user by their unique _id
+    const deletedUser = await User.findByIdAndDelete(userId);
+
+    if (!deletedUser) {
+      return res.status(404).json({ message: "User account profile not found in database." });
+    }
+
+    return res.status(200).json({ message: "Clearance dropped. Account terminated successfully." });
+  } catch (error) {
+    console.error("Backend delete route error:", error);
+    return res.status(500).json({ message: "Internal server error deleting user account." });
+  }
+});
+
+// 1. CHECK PENDING REQUEST STATUS
+// Endpoint: GET http://localhost:3000/users/requests/status?studentId=...
+router.get('/requests/status', async (req, res) => {
+  try {
+    const { studentId } = req.query;
+    if (!studentId) return res.status(400).json({ message: "Missing studentId parameter." });
+
+    // Look for any request that isn't finished yet
+    const pendingRequest = await Request.findOne({ 
+      studentId: studentId, 
+      status: { $in: ['pending', 'processing'] } 
+    });
+
+    return res.status(200).json({ hasPending: !!pendingRequest });
+  } catch (error) {
+    console.error("Error checking request status:", error);
+    return res.status(500).json({ message: "Internal server error checking track states." });
+  }
+});
+
+// 1. CREATE NEW TRANSCRIPT RECORD
+router.post('/requests/create', async (req, res) => {
+  try {
+    const { studentId, terms, paymentStatus, paymentReference } = req.body;
+
+    // Use our uniquely named model variable here:
+    const newRequest = new Transcript({
+      studentId,
+      terms,
+      paymentStatus,
+      paymentReference
+    });
+
+    await newRequest.save();
+    return res.status(201).json(newRequest);
+  } catch (error) {
+    console.error("CRITICAL BACKEND SHOWING ERROR:", error); // Forces visibility in terminal
+    return res.status(500).json({ message: error.message });
+  }
+});
+
+// 2. FETCH STUDENT'S HISTORICAL LOGS LIST
+router.get('/requests/list', async (req, res) => {
+  try {
+    const { studentId } = req.query;
+
+    // Use our uniquely named model variable here:
+    const list = await Transcript.find({ studentId }).sort({ createdAt: -1 });
+    return res.status(200).json(list);
+  } catch (error) {
+    console.error("CRITICAL BACKEND SHOWING ERROR:", error); // Forces visibility in terminal
+    return res.status(500).json({ message: error.message });
+  }
+});
+
 
 module.exports = router

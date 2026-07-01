@@ -1,28 +1,18 @@
-// document.addEventListener("DOMContentLoaded", () => {
-//   const currentUser = JSON.parse(
-//     localStorage.getItem("currentUser"));
+// ================= GLOBAL STATE =================
+let allUsersList = []; // Caches user payload array to optimize filtering speeds
 
-//   if (currentUser?.role === "admin") {
-//     document.getElementById("adminUser").style.display = "flex";
-//   }
-  
-//   if (!currentUser || currentUser.role === "student") {
-//   window.location.href = "/login";
-// }
-// });
-// axios.post('/adduser', { 
-//   username: 'test',
-//   email: "test@gmail.com",
-//   password: '123'
-// })
-// .then(res => console.log(res.data))
-// .catch(err => console.log(err))
-// ================= GET UNIQUE STUDENTS =================
-// Inside your dashboard frontend javascript file (e.g., admindash.js)
+// ================= INITIALIZATION TRACKS =================
 document.addEventListener("DOMContentLoaded", () => {
   enforceRolePermissions();
+  renderUsers(); // Fires automatically on page load
+  initializeDashboardStats();
+  loadDashboard();
 });
 
+window.addEventListener("storage", loadDashboard);
+setInterval(loadDashboard, 3000);
+
+// ================= ROLE SECURITY LOCKS =================
 function enforceRolePermissions() {
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   if (!currentUser) return;
@@ -31,38 +21,12 @@ function enforceRolePermissions() {
   if (currentUser.role === "user") {
     console.log("Sub-staff detected. Restricting administrative modification panels...");
 
-    // 1. Completely hide links/actions with the 'admin-only' class
+    // Completely hide links/actions with the 'admin-only' class
     document.querySelectorAll(".admin-only").forEach(element => {
       element.classList.add("hidden"); 
-      // Or use element.remove() if you want them completely stripped from the DOM tree
     });
 
-    async function deleteUser(mongoObjectId) {
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-  
-  // Hard blocker right inside the execution track
-  if (!currentUser || currentUser.role !== "admin") {
-    showToast("Action Denied: You do not have permission to delete accounts.", "error");
-    return;
-  }
-
-  if (!confirm("Are you absolutely sure you want to permanently delete this staff user?")) return;
-
-  try {
-    const response = await fetch(`http://localhost:3000/users/staff/${mongoObjectId}`, {
-      method: "DELETE"
-    });
-
-    if (response.ok) {
-      showToast("Account terminated successfully.", "success");
-      renderUsers();
-    }
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-    // 2. Disable form fields if they manage to navigate or see them
+    // Disable form fields if they manage to navigate or see them
     const submitBtn = document.querySelector("#adduser button[type='submit']");
     if (submitBtn) {
       submitBtn.disabled = true;
@@ -72,7 +36,106 @@ function enforceRolePermissions() {
   }
 }
 
-// Ensure the name matches your form's onsubmit="createUser()" perfectly
+// ================= RENDER & LIVE FILTER USERS =================
+// ================= RENDER & LIVE FILTER USERS =================
+async function renderUsers() {
+  const tableBody = document.getElementById("usersTable");
+  const searchInput = document.getElementById("searchUser");
+  if (!tableBody) return; 
+
+  try {
+    // FORCE FETCH: Fetch from the database if our local cache array is empty
+    if (allUsersList.length === 0) {
+      console.log("Fetching fresh user directories from backend server...");
+      const response = await fetch('/users/all-users');
+      if (!response.ok) throw new Error("Could not map active records.");
+      allUsersList = await response.json();
+    }
+
+    // Clear the table body container layout
+    tableBody.innerHTML = "";
+
+    // Read the query search value safely
+    const filterQuery = searchInput ? searchInput.value.toLowerCase().trim() : "";
+
+    // Filter matching entries against BOTH fields (username and email)
+    const matches = allUsersList.filter(user => {
+      const nameString = (user.username || user.name || "").toLowerCase();
+      const emailString = (user.email || "").toLowerCase();
+      return nameString.includes(filterQuery) || emailString.includes(filterQuery);
+    });
+
+    if (matches.length === 0) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="4" class="p-8 text-center text-slate-500 font-semibold text-sm">
+            No matching user profiles found.
+          </td>
+        </tr>`;
+      return;
+    }
+
+    // Render the rows cleanly matching your table structure
+    matches.forEach(user => {
+      const row = document.createElement("tr");
+      row.className = "border-b border-slate-200/40 hover:bg-white/20 transition text-sm text-slate-800 font-semibold";
+      
+      row.innerHTML = `
+        <td class="p-3 text-slate-900 truncate max-w-[150px]">${user.username || user.name || 'Staff'}</td>
+        <td class="p-3 text-slate-600 truncate max-w-[200px]">${user.email}</td>
+        <td class="p-3 text-center">
+          <span class="inline-block px-2.5 py-0.5 text-xs font-black rounded-full ${
+            user.role === 'admin' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
+          }">
+            ${user.role || 'user'}
+          </span>
+        </td>
+        <td class="p-3 text-center">
+          <button onclick="deleteUser('${user._id}')" class="bg-red-50 hover:bg-red-600 text-red-600 hover:text-white text-xs font-bold px-3 py-1 rounded-md transition">
+            Delete
+          </button>
+        </td>
+      `;
+      tableBody.appendChild(row);
+    });
+
+  } catch (error) {
+    console.error("UI population breakdown:", error);
+    tableBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-700 bg-red-50 text-sm font-medium">Error linking workspace to registration pool.</td></tr>`;
+  }
+}
+
+// ================= ACCOUNTS REMOVAL EXECUTOR =================
+async function deleteUser(mongoObjectId) {
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  
+  if (!currentUser || currentUser.role !== "admin") {
+    alert("Action Denied: You do not have permission to delete accounts.");
+    return;
+  }
+
+  if (!confirm("Are you absolutely sure you want to permanently delete this staff user?")) return;
+
+  try {
+    const response = await fetch(`/users/staff/${mongoObjectId}`, {
+      method: "DELETE"
+    });
+
+    if (response.ok) {
+      alert("Account terminated successfully.");
+      allUsersList = []; // Reset local memory array block cache
+      renderUsers();     // Reload interface view live
+    } else {
+      const data = await response.json();
+      alert(data.message || "Server rejected transaction.");
+    }
+  } catch (error) {
+    console.error("Deletion operation crash trace:", error);
+    alert("Network Failure connecting to removal system endpoint.");
+  }
+}
+
+// ================= ACCOUNT PROVISIONING =================
 async function createUser() {
   const nameInput = document.getElementById("fullName");
   const emailInput = document.getElementById("email");
@@ -80,32 +143,24 @@ async function createUser() {
   const confirmPasswordInput = document.getElementById("confirmPassword");
   const roleInput = document.getElementById("role");
 
-  // Safety block check in case fields haven't rendered yet
   if (!nameInput || !emailInput || !passwordInput || !confirmPasswordInput) {
     alert("Error: Script could not map form elements from the page layout.");
     return;
   }
 
-  // 1. Password mismatch verification check
   if (passwordInput.value !== confirmPasswordInput.value) {
     alert("Validation Error: Passwords do not match!");
     return;
   }
 
-  // 2. Build out the registration data payload
   const payload = {
     username: nameInput.value.trim(),
     email: emailInput.value.trim(),
     password: passwordInput.value,
-    // If you are setting up your master admin, you can change "user" below to "admin" 
-    // to force it directly into the database as a full access manager!
     role: roleInput ? roleInput.value : "user" 
   };
 
   try {
-    console.log("Sending registration tracking data to server endpoint...", payload);
-
-    // 3. Connect to your registration API endpoint route address
     const response = await fetch('/users/register', { 
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -119,17 +174,12 @@ async function createUser() {
       return;
     }
 
-    // 4. Success handling sequence
     alert("Success! Account profile written and saved to MongoDB.");
-    
-    // Clear out form inputs smoothly
     const formElement = document.getElementById("adduser");
     if (formElement) formElement.reset();
-
-    // If your table renderer functions are active in dashboard.js, update the list view
-    if (typeof renderUsers === "function") {
-      renderUsers();
-    }
+    
+    allUsersList = []; // Wipe local memory array to force fresh read
+    renderUsers();
 
   } catch (error) {
     console.error("Critical submission breakdown trace:", error);
@@ -137,44 +187,36 @@ async function createUser() {
   }
 }
 
-// Global logout function linked across panels
-function logout() {
-  localStorage.clear();
-  window.location.href = "/login";
-}
-// Add this to your frontend dashboard controller script
+// ================= PROFILE ROUTING LOOKUPS =================
 async function searchStudentProfile() {
-    const searchInput = document.querySelector('input[placeholder*="01112"]').value.trim();
-    if (!searchInput) return;
+  const searchInput = document.querySelector('input[placeholder*="01112"]').value.trim();
+  if (!searchInput) return;
 
-    try {
-        const response = await fetch(`http://localhost:3000/users/search/profile?studentId=${searchInput}`);
-        const data = await response.json();
-
-        if (!response.ok) {
-            alert(data.message || "Student profile not found.");
-            return;
-        }
-
-        // Populate your input editing text fields dynamically here
-        document.getElementById("firstName").value = data.firstName || "";
-        document.getElementById("surname").value = data.surname || "";
-        
-        console.log("Successfully retrieved data payload:", data);
-    } catch (error) {
-        console.error("Failed fetching lookups:", error);
-    }
-}async function initializeDashboardStats() {
   try {
-    const response = await fetch('http://localhost:3000/users/dashboard/stats');
+    const response = await fetch(`/users/search/profile?studentId=${searchInput}`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.message || "Student profile not found.");
+      return;
+    }
+
+    document.getElementById("firstName").value = data.firstName || "";
+    document.getElementById("surname").value = data.surname || "";
+  } catch (error) {
+    console.error("Failed fetching lookups:", error);
+  }
+}
+
+// ================= METRICS METADATA LOADING =================
+async function initializeDashboardStats() {
+  try {
+    const response = await fetch('/users/dashboard/stats');
     if (!response.ok) throw new Error("Could not download metrics pipeline data.");
     
     const stats = await response.json();
-    console.log("Stats received from backend:", stats); 
-
     updateCounterDOM("totalStudentsCountElement", stats.totalStudents);
     updateCounterDOM("totalSubjectsCountElement", stats.totalSubjectsLogged);
-
   } catch (error) {
     console.error("Failed to safely update dashboard metric counters:", error);
     updateCounterDOM("totalStudentsCountElement", 0);
@@ -183,63 +225,44 @@ async function searchStudentProfile() {
 
 function updateCounterDOM(elementId, value) {
   const element = document.getElementById(elementId);
-  if (element) {
-    element.textContent = value;
-  } else {
-    console.warn(`Could not find HTML element with id="${elementId}" on this page.`);
-  }
+  if (element) element.textContent = value;
 }
 
-document.addEventListener("DOMContentLoaded", initializeDashboardStats);
-
-function updateCounterDOM(elementId, value) {
-  const element = document.getElementById(elementId);
-  if (element) {
-    element.textContent = value;
-  }
-}
-
-// ================= DASHBOARD LOAD =================
+// ================= FALLBACK COMPONENT CONTROLLERS =================
 async function loadDashboard() {
+  let totalStudents = 0;
+  if (typeof getTotalStudentsFromResults === "function") {
+    totalStudents = getTotalStudentsFromResults();
+  }
 
-  /* -------- STUDENTS -------- */
-
-  // 🔥 PRIMARY SOURCE (from results)
-  let totalStudents = getTotalStudentsFromResults();
-
-  // 🔁 FALLBACK (if results empty)
   if (totalStudents === 0) {
     const storedStudents = JSON.parse(localStorage.getItem("students")) || [];
     totalStudents = storedStudents.length;
   }
 
-  /* -------- REQUESTS -------- */
   const requests = JSON.parse(localStorage.getItem("transcriptRequests")) || [];
   const delivered = JSON.parse(localStorage.getItem("deliveredTranscripts")) || [];
-
-  // Only active requests
   const activeRequests = requests.filter(r => r.status === "pending");
 
-  const totalRequests = activeRequests.length;
-  const totalSent = delivered.length;
-  const totalPending = activeRequests.length;
+  const format = (num) => num ? num.toLocaleString() : "0";
 
-  /* -------- FORMAT -------- */
-  const format = (num) => num.toLocaleString();
-
-  /* -------- SAFE UI UPDATE -------- */
   function setText(id, value) {
     const el = document.getElementById(id);
     if (el) el.textContent = format(value);
   }
 
   setText("totalStudents", totalStudents);
-  setText("totalRequests", totalRequests);
-  setText("totalSent", totalSent);
-  setText("totalPending", totalPending);
+  setText("totalRequests", activeRequests.length);
+  setText("totalSent", delivered.length);
+  setText("totalPending", activeRequests.length);
 }
 
-/* ================= INIT ================= */
-document.addEventListener("DOMContentLoaded", loadDashboard);
-window.addEventListener("storage", loadDashboard);
-setInterval(loadDashboard, 3000);
+function logout() {
+  localStorage.clear();
+  window.location.href = "/login";
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("Page ready! Loading active user profiles from MongoDB...");
+  renderUsers(); 
+});

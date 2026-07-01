@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>admindash</title>
+  <title>Registered Users</title>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
@@ -17,6 +17,20 @@
 //   window.location.href = "/login";
 // }
 // });
+  </script>
+  <script src="dashboard.js"></script> 
+  <script src="script.js"></script> 
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // If renderUsers exists in dashboard.js, force execute it immediately
+      if (typeof renderUsers === "function") {
+        console.log("HTML inline script: Triggering user table render...");
+        renderUsers();
+      } else {
+        console.error("HTML inline script Error: renderUsers function was not found inside dashboard.js!");
+      }
+    });
   </script>
 </head>
 
@@ -134,8 +148,8 @@
 </footer>
   
 
-  <script src="dashboard.js"></script> 
-   <script src="script.js"></script> 
+  <script src="/scripts/dashboard.js"></script> 
+   <script src="/scripts/script.js"></script> 
    
 </body>
 </html>

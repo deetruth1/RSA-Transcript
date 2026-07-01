@@ -84,26 +84,33 @@
          </div>
    
    <div class="grid grid-cols-2 gap-4">
-   <div class="flex flex-col">  <label class="block font-medium px-1.5 mb-1">Student ID</label>
-      <input id="studentId" name="studentid" type="text" placeholder="Enter the Student Id"
-      <span id="displayStudentId" class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5"></span>
-        </div>
-      <div class="flex flex-col">  <label class="block font-medium px-1.5 mb-1">Email</label>
-      <input id="email" name="email" type="email" placeholder="Email"
-        class="w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5" required></div>          
-    <div class="flex flex-col">  <label class="block font-medium px-1.5 mb-1">Year</label>
-      <input id="Year" name="year" type="text" placeholder="Year"
-    <span id="displayYear" class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5"></span></div>
-  
-   <div class="flex flex-col">  <label class="block font-medium px-1.5 mb-1">Level</label>
-      <input id="Level" name="Level" type="text" placeholder="Level"
-      <span id="displaySchool" name="level" class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5"></span></div>
-  </div>
+   <div class="flex flex-col">  
+  <label class="block font-medium px-1.5 mb-1">Student ID</label>
+  <input id="studentId" name="studentid" type="text" placeholder="Student ID" class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5" readonly>
+</div>
+
+<div class="flex flex-col">  
+  <label class="block font-medium px-1.5 mb-1">Email</label>
+  <input id="email" name="email" type="email" placeholder="Email" class="w-full shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5" required readonly>
+</div>      
+
+<div class="flex flex-col">  
+  <label class="block font-medium px-1.5 mb-1">Year</label>
+  <input id="Year" name="year" type="text" placeholder="Year" class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5" readonly>
+</div>
+
+<div class="flex flex-col">  
+  <label class="block font-medium px-1.5 mb-1">Level</label>
+  <input id="Level" name="Level" type="text" placeholder="Level" class="shadow-sm shadow-blue-600 backdrop-blur-md rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5" readonly>
+</div>
   </div>
    <div class="grid grid-cols-2 gap-4 my-6 text-white lg:text-5xl">
-     
-   <button onclick="openResult('${key}','${id}')" class="p-1.5 rounded-2xl shadow-white bg-blue-600 shadow-md text-center">View Results</button>
-   <button onclick="openRequest('${key}','${id}')" class="p-1.5 lg:p-2 rounded-2xl shadow-white bg-blue-600 shadow-md text-center">Transcript Requests</button>
+   <button onclick="openResult()" class="p-1.5 rounded-2xl shadow-white bg-blue-600 shadow-md text-center text-white font-medium">
+    View Results
+  </button>
+   <button onclick="openRequest()" class="p-1.5 lg:p-2 rounded-2xl shadow-white bg-blue-600 shadow-md text-center">
+    Transcript Requests
+  </button>
   </div>
   </section>
  

@@ -34,12 +34,12 @@
   </div>
 
   <div id="mobileMenu" class="hidden absolute right-4 top-14 w-48 shadow-2xl bg-white/95 text-slate-800 backdrop-blur-md rounded-xl py-4 flex flex-col gap-2 font-medium">
-    <a href="admindash.html" class="block px-4 py-1.5 hover:text-blue-600">Home</a>
-    <a href="profile.html" class="block px-4 py-1.5 hover:text-blue-600">Add Student</a>
-    <a href="edit.html" class="block px-4 py-1.5 hover:text-blue-600">Edit Records</a>
-    <a href="generate.html" class="block px-4 py-1.5 hover:text-blue-600">Generate Transcript</a>
-    <a href="request.html" class="block px-4 py-1.5 hover:text-blue-600">Requests</a>
-    <a href="sent.html" class="block px-4 py-1.5 hover:text-blue-600">Sent Logs</a>
+    <a href="/admindash" class="block px-4 py-1.5 hover:text-blue-600">Home</a>
+    <a href="/profile" class="block px-4 py-1.5 hover:text-blue-600">Add Student</a>
+    <a href="/edit" class="block px-4 py-1.5 hover:text-blue-600">Edit Records</a>
+    <a href="/generate" class="block px-4 py-1.5 hover:text-blue-600">Generate Transcript</a>
+    <a href="/request" class="block px-4 py-1.5 hover:text-blue-600">Requests</a>
+    <a href="/sent" class="block px-4 py-1.5 hover:text-blue-600">Sent Logs</a>
     <hr class="border-slate-100 my-1">
     <button onclick="logout()" class="text-left px-4 py-1.5 text-red-600 font-bold hover:bg-slate-50">Sign Out</button> 
   </div>
@@ -54,11 +54,11 @@
       </h2>
 
       <nav class="flex flex-col gap-1.5 text-slate-300 font-medium text-sm lg:text-base">
-        <a href="admindash.html" class="px-4 py-2 rounded-xl bg-white/10 text-white font-bold transition">Manage Staff</a>
-        <a href="profile.html" class="px-4 py-2 rounded-xl hover:bg-white/5 hover:text-white transition">Add Student</a>
-        <a href="edit.html" class="px-4 py-2 rounded-xl hover:bg-white/5 hover:text-white transition">Edit Grades</a>
-        <a href="generate.html" class="px-4 py-2 rounded-xl hover:bg-white/5 hover:text-white transition">Transcripts</a>
-        <a href="request.html" class="px-4 py-2 rounded-xl flex justify-between items-center hover:bg-white/5 hover:text-white transition">
+        <a href="/admindash" class="px-4 py-2 rounded-xl bg-white/10 text-white font-bold transition">Manage Staff</a>
+        <a href="/profile" class="px-4 py-2 rounded-xl hover:bg-white/5 hover:text-white transition">Add Student</a>
+        <a href="/edit" class="px-4 py-2 rounded-xl hover:bg-white/5 hover:text-white transition">Edit Grades</a>
+        <a href="/generate" class="px-4 py-2 rounded-xl hover:bg-white/5 hover:text-white transition">Transcripts</a>
+        <a href="/request" class="px-4 py-2 rounded-xl flex justify-between items-center hover:bg-white/5 hover:text-white transition">
           <span>Incoming Requests</span>
           <span id="notificationDot" class="hidden bg-amber-500 text-slate-950 text-xs font-black px-2 py-0.5 rounded-full">0</span>
         </a>

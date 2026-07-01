@@ -166,5 +166,9 @@ router.get('/privacy-policy', (req, res) => {
     })
 })
 
+router.get('/payment', (req, res) => {
+    res.sendFile(path.join(__dirname, '../pages/payment.html')); 
+});
+
 
 module.exports = router
